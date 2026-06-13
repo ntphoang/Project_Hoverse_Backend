@@ -43,7 +43,10 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Email đã được sử dụng");
         }
 
+        String email = request.getEmail();
+        String generatedUsername = email.substring(0,email.indexOf("@"));
         User user = User.builder()
+                .username(generatedUsername)
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)

@@ -1,14 +1,13 @@
 package com.hoverse.backend.service.impl;
 
-import com.hoverse.backend.dto.AuthRequest;
-import com.hoverse.backend.dto.AuthResponse;
+import com.hoverse.backend.dto.AuthRequestDTO;
+import com.hoverse.backend.dto.AuthResponseDTO;
 import com.hoverse.backend.entity.User;
 import com.hoverse.backend.enums.Role;
 import com.hoverse.backend.enums.UserStatus;
 import com.hoverse.backend.repository.UserRepository;
 import com.hoverse.backend.security.JwtUtils;
 import com.hoverse.backend.service.AuthService;
-import jakarta.transaction.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,7 +37,7 @@ public class AuthServiceImpl implements AuthService {
     private AuthenticationManager authenticationManager;
 
     @Override
-    public AuthResponse register(AuthRequest request) {
+    public AuthResponseDTO register(AuthRequestDTO request) {
         if(userRepository.findByEmail(request.getEmail()).isPresent()){
             throw new RuntimeException("Email đã được sử dụng");
         }
@@ -62,7 +61,7 @@ public class AuthServiceImpl implements AuthService {
 
         String jwtToken = jwtUtils.generateToken(userDetails);
 
-        return AuthResponse.builder()
+        return AuthResponseDTO.builder()
                 .token(jwtToken)
                 .email(user.getEmail())
                 .role(user.getRole().name())
@@ -70,7 +69,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthResponse login(AuthRequest request) {
+    public AuthResponseDTO login(AuthRequestDTO request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPassword())
         );
@@ -86,7 +85,7 @@ public class AuthServiceImpl implements AuthService {
 
         String jwtToken = jwtUtils.generateToken(userDetails);
 
-        return AuthResponse.builder()
+        return AuthResponseDTO.builder()
                 .token(jwtToken)
                 .email(user.getEmail())
                 .role(user.getRole().name())

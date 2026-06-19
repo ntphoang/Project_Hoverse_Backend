@@ -1,7 +1,7 @@
 package com.hoverse.backend.service;
 
-import com.hoverse.backend.dto.AuthRequest;
-import com.hoverse.backend.dto.AuthResponse;
+import com.hoverse.backend.dto.AuthRequestDTO;
+import com.hoverse.backend.dto.AuthResponseDTO;
 
 /**
  * Project_Hoverse_Backend
@@ -9,6 +9,6 @@ import com.hoverse.backend.dto.AuthResponse;
  * Date: 13/06/2026
  */
 public interface AuthService {
-    AuthResponse register(AuthRequest request);
-    AuthResponse login(AuthRequest request);
+    AuthResponseDTO register(AuthRequestDTO request);
+    AuthResponseDTO login(AuthRequestDTO request);
 }

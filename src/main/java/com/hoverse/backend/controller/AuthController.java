@@ -1,7 +1,7 @@
 package com.hoverse.backend.controller;
 
-import com.hoverse.backend.dto.AuthRequest;
-import com.hoverse.backend.dto.AuthResponse;
+import com.hoverse.backend.dto.AuthRequestDTO;
+import com.hoverse.backend.dto.AuthResponseDTO;
 import com.hoverse.backend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,9 +24,9 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody AuthRequest request){
+    public ResponseEntity<?> register(@RequestBody AuthRequestDTO request){
         try {
-            AuthResponse response = authService.register(request);
+            AuthResponseDTO response = authService.register(request);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -34,9 +34,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest request){
+    public ResponseEntity<?> login(@RequestBody AuthRequestDTO request){
         try {
-            AuthResponse response = authService.login(request);
+            AuthResponseDTO response = authService.login(request);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Tài khoản hoặc mật khẩu không chính xác!");

@@ -1,4 +1,4 @@
-package com.hoverse.backend.util;
+package com.hoverse.backend.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

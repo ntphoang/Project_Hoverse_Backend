@@ -1,4 +1,4 @@
-package com.hoverse.backend.util;
+package com.hoverse.backend.security;
 
 import com.hoverse.backend.entity.User;
 import com.hoverse.backend.repository.UserRepository;

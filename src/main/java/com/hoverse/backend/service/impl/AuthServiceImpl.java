@@ -6,7 +6,7 @@ import com.hoverse.backend.entity.User;
 import com.hoverse.backend.enums.Role;
 import com.hoverse.backend.enums.UserStatus;
 import com.hoverse.backend.repository.UserRepository;
-import com.hoverse.backend.security.JwtUtils;
+import com.hoverse.backend.util.JwtUtils;
 import com.hoverse.backend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;

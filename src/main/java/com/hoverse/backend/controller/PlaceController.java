@@ -32,4 +32,10 @@ public class PlaceController {
         PlaceResponseDTO createPlace = placeService.createPlace(requestDTO);
         return ResponseEntity.ok(createPlace);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PlaceResponseDTO> getPlaceDetail(@PathVariable Long id){
+        PlaceResponseDTO place = placeService.getPlaceDetail(id);
+        return ResponseEntity.ok(place);
+    }
 }

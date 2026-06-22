@@ -5,6 +5,7 @@ import com.hoverse.backend.dto.PlaceResponseDTO;
 import com.hoverse.backend.entity.Category;
 import com.hoverse.backend.entity.Place;
 import com.hoverse.backend.entity.User;
+import com.hoverse.backend.enums.PlaceStatus;
 import com.hoverse.backend.mapper.PlaceMapper;
 import com.hoverse.backend.repository.CategoryRepository;
 import com.hoverse.backend.repository.PlaceRepository;
@@ -52,5 +53,13 @@ public class PlaceServiceImpl implements PlaceService {
 
         return placeMapper.toResponseDTO(savedPlace);
 
+    }
+
+    @Override
+    public PlaceResponseDTO getPlaceDetail(Long placeId) {
+        Place place = placeRepository.findByIdAndStatus(placeId, PlaceStatus.APPROVED)
+                .orElseThrow(()->new RuntimeException("Không tim thấy địa điểm với ID: "+placeId));
+
+        return placeMapper.toResponseDTO(place);
     }
 }

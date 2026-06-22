@@ -1,6 +1,5 @@
 package com.hoverse.backend.config;
 
-import com.hoverse.backend.entity.User;
 import com.hoverse.backend.security.CustomUserDetailsService;
 import com.hoverse.backend.security.JwtAuthFilter;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -15,4 +15,5 @@ import java.util.List;
 public interface PlaceService {
     List<PlaceResponseDTO> getAllPlaces();
     PlaceResponseDTO createPlace(PlaceRequestDTO requestDTO);
+    PlaceResponseDTO getPlaceDetail(Long placeId);
 }

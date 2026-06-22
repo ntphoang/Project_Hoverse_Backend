@@ -35,6 +35,7 @@ public class PlaceServiceImpl implements PlaceService {
     public List<PlaceResponseDTO> getAllPlaces() {
         return placeRepository.findAll()
                 .stream()
+                .filter(place -> place.getStatus()==PlaceStatus.APPROVED)
                 .map(placeMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }

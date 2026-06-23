@@ -2,9 +2,12 @@ package com.hoverse.backend.entity;
 
 import com.hoverse.backend.enums.ReviewStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Project_TimKiemDiaDiemVuiChoi
@@ -19,8 +22,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name = "review" +
-                "s",
+        name = "reviews",
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_user_place_review",columnNames = {"user_id","place_id"})
         },
@@ -36,6 +38,8 @@ public class Review {
     private Long id;
 
     @Column(nullable = false)
+    @Min(1)
+    @Max(5)
     private Integer rating;
 
     @Column(columnDefinition = "TEXT", nullable = false)
@@ -61,6 +65,14 @@ public class Review {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @ElementCollection
+    @CollectionTable(
+            name = "review_images",
+            joinColumns = @JoinColumn(name = "review_id")
+    )
+    @Column(name = "image_url")
+    private List<String> images;
 
     @PrePersist
     protected void onCreate(){

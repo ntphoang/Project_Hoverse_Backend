@@ -28,4 +28,17 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponseDTO);
     }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<?> handleBadRequest(BadRequestException ex){
+        String message = ex.getMessage();
+
+        ErrorResponseDTO errorResponseDTO = ErrorResponseDTO.builder()
+                .time(LocalDateTime.now())
+                .message(message)
+                .code("400")
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponseDTO);
+    }
 }

@@ -8,17 +8,21 @@ import com.hoverse.backend.entity.User;
 import com.hoverse.backend.enums.PlaceStatus;
 import com.hoverse.backend.exception.BadRequestException;
 import com.hoverse.backend.exception.ResourceNotFoundException;
+import com.hoverse.backend.mapper.ReviewMapper;
 import com.hoverse.backend.repository.PlaceRepository;
 import com.hoverse.backend.repository.ReviewRepository;
 import com.hoverse.backend.repository.UserRepository;
 import com.hoverse.backend.service.ReviewService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Project_Hoverse_Backend
@@ -31,6 +35,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final PlaceRepository placeRepository;
     private final UserRepository userRepository;
+    private final ReviewMapper reviewMapper;
 
     @Override
     @Transactional
@@ -71,5 +76,11 @@ public class ReviewServiceImpl implements ReviewService {
                 .avatarUrl(reviewSaved.getUser().getAvatarUrl())
                 .placeTitle(reviewSaved.getPlace().getTitle())
                 .build();
+    }
+
+    @Override
+    public Page<ReviewResponseDTO> findReviewsByPlaceId(Long placeId, Pageable pageable) {
+        Page<Review> reviews = reviewRepository.findReviewsByPlaceId(placeId,pageable);
+        return reviews.map(reviewMapper::toResponseDTO);
     }
 }

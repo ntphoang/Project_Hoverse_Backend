@@ -1,9 +1,12 @@
 package com.hoverse.backend.controller;
 
 import com.hoverse.backend.dto.ReviewRequestDTO;
+import com.hoverse.backend.dto.ReviewResponseDTO;
 import com.hoverse.backend.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,5 +28,11 @@ public class ReviewController {
         String email = principal.getName();
         reviewService.createReview(id,email,requestDTO);
         return ResponseEntity.ok("Đã thêm đánh giá thành công!");
+    }
+
+    @GetMapping("/{id}/reviews")
+    public ResponseEntity<?> getReviewOfPlace(@PathVariable Long id, Pageable pageable){
+        Page<ReviewResponseDTO> reviewResponseDTOS = reviewService.findReviewsByPlaceId(id,pageable);
+        return ResponseEntity.ok(reviewResponseDTOS);
     }
 }

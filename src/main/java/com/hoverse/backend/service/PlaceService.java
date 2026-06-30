@@ -4,6 +4,8 @@ import com.hoverse.backend.dto.PlaceRequestDTO;
 import com.hoverse.backend.dto.PlaceResponseDTO;
 import com.hoverse.backend.mapper.PlaceMapper;
 import com.hoverse.backend.repository.PlaceRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -13,7 +15,7 @@ import java.util.List;
  * Date: 31/05/2026
  */
 public interface PlaceService {
-    List<PlaceResponseDTO> getAllPlaces();
     PlaceResponseDTO createPlace(PlaceRequestDTO requestDTO);
     PlaceResponseDTO getPlaceDetail(Long placeId);
+    Page<PlaceResponseDTO> getPlaceByConditions(String title, Double minRating, Pageable pageable);
 }

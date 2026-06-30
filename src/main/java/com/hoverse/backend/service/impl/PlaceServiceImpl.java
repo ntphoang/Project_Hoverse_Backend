@@ -11,8 +11,12 @@ import com.hoverse.backend.mapper.PlaceMapper;
 import com.hoverse.backend.repository.CategoryRepository;
 import com.hoverse.backend.repository.PlaceRepository;
 import com.hoverse.backend.repository.UserRepository;
+import com.hoverse.backend.repository.specification.PlaceSpecification;
 import com.hoverse.backend.service.PlaceService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,15 +34,6 @@ public class PlaceServiceImpl implements PlaceService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final PlaceMapper placeMapper;
-
-    @Override
-    public List<PlaceResponseDTO> getAllPlaces() {
-        return placeRepository.findAll()
-                .stream()
-                .filter(place -> place.getStatus()==PlaceStatus.APPROVED)
-                .map(placeMapper::toResponseDTO)
-                .collect(Collectors.toList());
-    }
 
     @Override
     public PlaceResponseDTO createPlace(PlaceRequestDTO requestDTO) {
@@ -63,5 +58,15 @@ public class PlaceServiceImpl implements PlaceService {
                 .orElseThrow(()->new ResourceNotFoundException("Không tim thấy địa điểm với ID: "+placeId));
 
         return placeMapper.toResponseDTO(place);
+    }
+
+    @Override
+    public Page<PlaceResponseDTO> getPlaceByConditions(String title, Double minRating, Pageable pageable) {
+        Specification<Place> specification =
+                Specification.where(PlaceSpecification.hasTitle(title))
+                        .and(PlaceSpecification.hasMinRating(minRating));
+
+        Page<Place> places = placeRepository.findAll(specification,pageable);
+        return places.map(placeMapper::toResponseDTO);
     }
 }

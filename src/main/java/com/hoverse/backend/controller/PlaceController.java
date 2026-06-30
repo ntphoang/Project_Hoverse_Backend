@@ -5,6 +5,8 @@ import com.hoverse.backend.dto.PlaceResponseDTO;
 import com.hoverse.backend.service.PlaceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,12 +23,6 @@ import java.util.List;
 public class PlaceController {
     private final PlaceService placeService;
 
-    @GetMapping
-    public ResponseEntity<List<PlaceResponseDTO>> getAllPlaces(){
-        List<PlaceResponseDTO> places = placeService.getAllPlaces();
-        return ResponseEntity.ok(places);
-    }
-
     @PostMapping
     public ResponseEntity<PlaceResponseDTO> createPlace(@Valid @RequestBody PlaceRequestDTO requestDTO){
         PlaceResponseDTO createPlace = placeService.createPlace(requestDTO);
@@ -37,5 +33,11 @@ public class PlaceController {
     public ResponseEntity<PlaceResponseDTO> getPlaceDetail(@PathVariable Long id){
         PlaceResponseDTO place = placeService.getPlaceDetail(id);
         return ResponseEntity.ok(place);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getPlaceByConditions(@RequestParam(required = false) String title, @RequestParam(required = false) Double minRating, Pageable pageable){
+        Page<PlaceResponseDTO> places = placeService.getPlaceByConditions(title, minRating, pageable);
+        return ResponseEntity.ok(places);
     }
 }

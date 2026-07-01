@@ -1,6 +1,7 @@
 package com.hoverse.backend.repository.specification;
 
 import com.hoverse.backend.entity.Place;
+import com.hoverse.backend.enums.PlaceStatus;
 import org.springframework.data.jpa.domain.Specification;
 
 /**
@@ -26,6 +27,15 @@ public class PlaceSpecification {
                 return criteriaBuilder.conjunction();
             }
             return criteriaBuilder.greaterThanOrEqualTo(root.get("avgRating"),minRating);
+        };
+    }
+
+    public static Specification<Place> hasStatus(PlaceStatus status){
+        return (root, query, criteriaBuilder) -> {
+          if(status == null) {
+              return criteriaBuilder.conjunction();
+          }
+          return criteriaBuilder.like(root.get("status"),status.toString());
         };
     }
 }

@@ -64,7 +64,8 @@ public class PlaceServiceImpl implements PlaceService {
     public Page<PlaceResponseDTO> getPlaceByConditions(String title, Double minRating, Pageable pageable) {
         Specification<Place> specification =
                 Specification.where(PlaceSpecification.hasTitle(title))
-                        .and(PlaceSpecification.hasMinRating(minRating));
+                        .and(PlaceSpecification.hasMinRating(minRating))
+                        .and(PlaceSpecification.hasStatus(PlaceStatus.APPROVED));
 
         Page<Place> places = placeRepository.findAll(specification,pageable);
         return places.map(placeMapper::toResponseDTO);

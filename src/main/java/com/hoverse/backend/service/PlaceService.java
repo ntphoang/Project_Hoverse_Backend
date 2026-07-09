@@ -6,6 +6,7 @@ import com.hoverse.backend.mapper.PlaceMapper;
 import com.hoverse.backend.repository.PlaceRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
  * Date: 31/05/2026
  */
 public interface PlaceService {
-    PlaceResponseDTO createPlace(PlaceRequestDTO requestDTO);
+    PlaceResponseDTO createPlace(PlaceRequestDTO requestDTO, List<MultipartFile> files);
     PlaceResponseDTO getPlaceDetail(Long placeId);
     Page<PlaceResponseDTO> getPlaceByConditions(String title, Double minRating, Pageable pageable);
 }

@@ -7,8 +7,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,9 +25,12 @@ import java.util.List;
 public class PlaceController {
     private final PlaceService placeService;
 
-    @PostMapping
-    public ResponseEntity<PlaceResponseDTO> createPlace(@Valid @RequestBody PlaceRequestDTO requestDTO){
-        PlaceResponseDTO createPlace = placeService.createPlace(requestDTO);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PlaceResponseDTO> createPlace(
+            @RequestPart(value = "place") @Valid PlaceRequestDTO requestDTO,
+            @RequestPart(value = "files",required = false) List<MultipartFile> files
+    ){
+        PlaceResponseDTO createPlace = placeService.createPlace(requestDTO,files);
         return ResponseEntity.ok(createPlace);
     }
 

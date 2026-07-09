@@ -1,11 +1,14 @@
 package com.hoverse.backend.dto;
 
+import com.hoverse.backend.entity.PlaceMedia;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Project_TimKiemDiaDiemVuiChoi
@@ -34,5 +37,4 @@ public class PlaceRequestDTO {
     private Long userId;
 
     private String description;
-    private String coverImageUrl;
 }

@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Project_TimKiemDiaDiemVuiChoi
@@ -82,6 +83,9 @@ public class Place {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "place",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlaceMedia> placeMediaList;
 
     @PrePersist
     protected void onCreate(){

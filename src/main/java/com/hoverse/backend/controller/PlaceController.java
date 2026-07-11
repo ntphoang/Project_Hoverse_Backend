@@ -1,5 +1,6 @@
 package com.hoverse.backend.controller;
 
+import com.hoverse.backend.dto.PlaceFilterRequestDTO;
 import com.hoverse.backend.dto.PlaceRequestDTO;
 import com.hoverse.backend.dto.PlaceResponseDTO;
 import com.hoverse.backend.service.PlaceService;
@@ -41,8 +42,8 @@ public class PlaceController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getPlaceByConditions(@RequestParam(required = false) String title, @RequestParam(required = false) Double minRating, Pageable pageable){
-        Page<PlaceResponseDTO> places = placeService.getPlaceByConditions(title, minRating, pageable);
+    public ResponseEntity<?> getPlaceByConditions(@ModelAttribute PlaceFilterRequestDTO filterRequestDTO, Pageable pageable){
+        Page<PlaceResponseDTO> places = placeService.getPlaceByConditions(filterRequestDTO,pageable);
         return ResponseEntity.ok(places);
     }
 }

@@ -1,6 +1,7 @@
 package com.hoverse.backend.service.impl;
 
 import com.hoverse.backend.dto.CloudinaryUploadResponseDTO;
+import com.hoverse.backend.dto.PlaceFilterRequestDTO;
 import com.hoverse.backend.dto.PlaceRequestDTO;
 import com.hoverse.backend.dto.PlaceResponseDTO;
 import com.hoverse.backend.entity.Category;
@@ -97,11 +98,12 @@ public class PlaceServiceImpl implements PlaceService {
 
 //    PHƯƠNG THỨC LẤY TẤT CẢ PLACE THEO CONDITION
     @Override
-    public Page<PlaceResponseDTO> getPlaceByConditions(String title, Double minRating, Pageable pageable) {
+    public Page<PlaceResponseDTO> getPlaceByConditions(PlaceFilterRequestDTO filterRequestDTO, Pageable pageable) {
         Specification<Place> specification =
-                Specification.where(PlaceSpecification.hasTitle(title))
-                        .and(PlaceSpecification.hasMinRating(minRating))
-                        .and(PlaceSpecification.hasStatus(PlaceStatus.APPROVED));
+                Specification.where(PlaceSpecification.hasTitle(filterRequestDTO.getTitle()))
+                        .and(PlaceSpecification.hasMinRating(filterRequestDTO.getMinRating()))
+                        .and(PlaceSpecification.hasStatus(PlaceStatus.APPROVED))
+                        .and(PlaceSpecification.hasCategory(filterRequestDTO.getCategoryId()));
 
         Page<Place> places = placeRepository.findAll(specification,pageable);
         return places.map(placeMapper::toResponseDTO);

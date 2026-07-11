@@ -38,4 +38,13 @@ public class PlaceSpecification {
           return criteriaBuilder.like(root.get("status"),status.toString());
         };
     }
+
+    public static Specification<Place> hasCategory(Long categoryId){
+        return(root, query, criteriaBuilder) -> {
+          if(categoryId == null){
+              return criteriaBuilder.conjunction();
+          }
+          return criteriaBuilder.equal(root.get("category").get("id"),categoryId);
+        };
+    }
 }

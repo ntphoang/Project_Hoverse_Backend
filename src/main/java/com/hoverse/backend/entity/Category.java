@@ -23,8 +23,8 @@ public class Category {
     @Column(nullable = false,unique = true, length = 100)
     private String slug;
 
-    @Column(name = "icon_url", length = 500)
-    private String iconUrl;
+    @Column(name = "icon_name", length = 500)
+    private String iconName;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;

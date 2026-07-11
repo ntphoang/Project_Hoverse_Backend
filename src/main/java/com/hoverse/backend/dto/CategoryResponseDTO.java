@@ -13,5 +13,5 @@ import lombok.Data;
 public class CategoryResponseDTO {
     private Long id;
     private String name;
-    private String iconUrl;
+    private String iconName;
 }

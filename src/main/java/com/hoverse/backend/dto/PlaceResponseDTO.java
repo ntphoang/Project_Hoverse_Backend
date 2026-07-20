@@ -3,6 +3,7 @@ package com.hoverse.backend.dto;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 /**
  * Project_TimKiemDiaDiemVuiChoi
@@ -29,4 +30,6 @@ public class PlaceResponseDTO {
     private String categoryName;
     private String categorySlug;
     private String authorName;
+
+    private Set<TagResponseDTO> tags;
 }

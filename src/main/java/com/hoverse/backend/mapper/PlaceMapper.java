@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  * Author: Phi Hoàng
  * Date: 29/05/2026
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",uses = TagMapper.class)
 public interface PlaceMapper {
     @Mapping(source = "category.name",target = "categoryName")
     @Mapping(source = "category.slug",target = "categorySlug")

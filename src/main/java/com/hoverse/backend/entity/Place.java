@@ -7,6 +7,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Project_TimKiemDiaDiemVuiChoi
@@ -87,12 +88,20 @@ public class Place {
     @OneToMany(mappedBy = "place",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlaceMedia> placeMediaList;
 
+    @ManyToMany()
+    @JoinTable(
+            name = "place_tags",
+            joinColumns = @JoinColumn(name = "place_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tags;
+
     @PrePersist
     protected void onCreate(){
         this.createAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
 
-        if(this.status == null) this.status = PlaceStatus.PENDING;
+        if(this.status == null) this.status = PlaceStatus.APPROVED;
         if(this.avgRating == null) this.avgRating = BigDecimal.ZERO;
         if(this.reviewCount == null) this.reviewCount = 0;
         if(this.viewCount == null) this.viewCount = 0;

@@ -4,16 +4,14 @@ import com.hoverse.backend.dto.CloudinaryUploadResponseDTO;
 import com.hoverse.backend.dto.PlaceFilterRequestDTO;
 import com.hoverse.backend.dto.PlaceRequestDTO;
 import com.hoverse.backend.dto.PlaceResponseDTO;
-import com.hoverse.backend.entity.Category;
-import com.hoverse.backend.entity.Place;
-import com.hoverse.backend.entity.PlaceMedia;
-import com.hoverse.backend.entity.User;
+import com.hoverse.backend.entity.*;
 import com.hoverse.backend.enums.PlaceStatus;
 import com.hoverse.backend.exception.BadRequestException;
 import com.hoverse.backend.exception.ResourceNotFoundException;
 import com.hoverse.backend.mapper.PlaceMapper;
 import com.hoverse.backend.repository.CategoryRepository;
 import com.hoverse.backend.repository.PlaceRepository;
+import com.hoverse.backend.repository.TagRepository;
 import com.hoverse.backend.repository.UserRepository;
 import com.hoverse.backend.repository.specification.PlaceSpecification;
 import com.hoverse.backend.service.CloudinaryService;
@@ -27,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,6 +40,7 @@ public class PlaceServiceImpl implements PlaceService {
     private final PlaceRepository placeRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final TagRepository tagRepository;
     private final PlaceMapper placeMapper;
     private final CloudinaryService cloudinaryService;
 
@@ -62,9 +62,17 @@ public class PlaceServiceImpl implements PlaceService {
         User user = userRepository.findById(requestDTO.getUserId())
                 .orElseThrow(()->new BadRequestException("Không tìm thấy người dùng với ID: "+requestDTO.getUserId()));
         Place place = placeMapper.toEntity(requestDTO);
+        List<Tag> tags = new ArrayList<>();
+        if(requestDTO.getTagIds()!=null && !requestDTO.getTagIds().isEmpty()){
+            tags = tagRepository.findAllById(requestDTO.getTagIds());
+        }
+        if(requestDTO.getTagIds().size()!=tags.size()){
+            throw new BadRequestException("Một hoặc nhiều tag không tồn tại!");
+        }
 
         place.setCategory(category);
         place.setUser(user);
+        place.setTags(new HashSet<>(tags));
 
         List<PlaceMedia> placeMediaList = new ArrayList<>();
         if(files!=null && !files.isEmpty()){

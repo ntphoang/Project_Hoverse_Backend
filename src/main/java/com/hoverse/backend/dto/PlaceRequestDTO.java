@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Project_TimKiemDiaDiemVuiChoi
@@ -37,4 +38,6 @@ public class PlaceRequestDTO {
     private Long userId;
 
     private String description;
+
+    private Set<Long> tagIds;
 }

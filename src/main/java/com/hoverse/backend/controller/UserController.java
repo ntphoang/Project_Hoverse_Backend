@@ -1,5 +1,7 @@
 package com.hoverse.backend.controller;
 
+import com.hoverse.backend.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,10 +16,13 @@ import java.security.Principal;
  */
 @RestController
 @RequestMapping("/api/v1/users")
+@RequiredArgsConstructor
 public class UserController {
-    @GetMapping("/profile")
+    private final UserService userService;
+
+    @GetMapping("/me")
     public ResponseEntity<?> getUserProfile(Principal principal){
         String email = principal.getName();
-        return ResponseEntity.ok("Chào mừng "+email+"! Trạm gác axios đã tự động trình thẻ JWT thành công.");
+        return ResponseEntity.ok(userService.getUserProfile(email));
     }
 }

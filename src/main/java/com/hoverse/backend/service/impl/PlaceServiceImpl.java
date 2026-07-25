@@ -1,18 +1,12 @@
 package com.hoverse.backend.service.impl;
 
-import com.hoverse.backend.dto.CloudinaryUploadResponseDTO;
-import com.hoverse.backend.dto.PlaceFilterRequestDTO;
-import com.hoverse.backend.dto.PlaceRequestDTO;
-import com.hoverse.backend.dto.PlaceResponseDTO;
+import com.hoverse.backend.dto.*;
 import com.hoverse.backend.entity.*;
 import com.hoverse.backend.enums.PlaceStatus;
 import com.hoverse.backend.exception.BadRequestException;
 import com.hoverse.backend.exception.ResourceNotFoundException;
 import com.hoverse.backend.mapper.PlaceMapper;
-import com.hoverse.backend.repository.CategoryRepository;
-import com.hoverse.backend.repository.PlaceRepository;
-import com.hoverse.backend.repository.TagRepository;
-import com.hoverse.backend.repository.UserRepository;
+import com.hoverse.backend.repository.*;
 import com.hoverse.backend.repository.specification.PlaceSpecification;
 import com.hoverse.backend.service.CloudinaryService;
 import com.hoverse.backend.service.PlaceService;
@@ -27,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -43,6 +38,7 @@ public class PlaceServiceImpl implements PlaceService {
     private final TagRepository tagRepository;
     private final PlaceMapper placeMapper;
     private final CloudinaryService cloudinaryService;
+    private final PlaceMediaRepository placeMediaRepository;
 
     private PlaceMedia toEntity (CloudinaryUploadResponseDTO responseDTO, Place place){
         return PlaceMedia.builder()
@@ -115,5 +111,48 @@ public class PlaceServiceImpl implements PlaceService {
 
         Page<Place> places = placeRepository.findAll(specification,pageable);
         return places.map(placeMapper::toResponseDTO);
+    }
+
+    @Override
+    public PlaceResponseDTO updatePlace(Long placeId, String email, PlaceUpdateRequestDTO requestDTO, List<MultipartFile> files) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()-> new ResourceNotFoundException("Không tìm thấy user với email: "+email));
+        Place place = placeRepository.findById(placeId)
+                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy địa điểm với id: "+placeId));
+
+        if(!place.getUser().getId().equals(user.getId())){
+            throw new BadRequestException("User với email "+email+" không được phép chỉnh sửa địa điểm "+place.getTitle());
+        }
+
+        place.setTitle(requestDTO.getTitle());
+        place.setDescription(requestDTO.getDescription());
+        place.setAddress(requestDTO.getAddress());
+        place.setLatitude(requestDTO.getLatitude());
+        place.setLongitude(requestDTO.getLongitude());
+        place.setCategory(categoryRepository.findById(requestDTO.getCategoryId()).orElseThrow(()->new ResourceNotFoundException("Không tìm thấy Category với id: "+requestDTO.getCategoryId())));
+
+        Set<Tag> tags = place.getTags();
+        tags.clear();
+        tags.addAll(tagRepository.findAllById(requestDTO.getTagIds()));
+        place.setTags(tags);
+
+        List<PlaceMedia> deleteFiles = place.getPlaceMediaList().stream()
+                .filter(file-> !requestDTO.getPlaceMediaIds().contains(file.getId()))
+                .toList();
+        deleteFiles.forEach(file->{
+            cloudinaryService.deleteFile(file.getPublicId());
+        });
+        place.getPlaceMediaList().removeAll(deleteFiles);
+        if(files!=null && !files.isEmpty()){
+            for(MultipartFile file: files){
+                CloudinaryUploadResponseDTO responseDTO = cloudinaryService.uploadFile(file);
+                place.getPlaceMediaList().add(toEntity(responseDTO,place));
+            }
+        }
+        if(place.getPlaceMediaList().size()>0){
+           place.setCoverImageUrl(place.getPlaceMediaList().get(0).getUrl());
+        }
+
+        return placeMapper.toResponseDTO(placeRepository.save(place));
     }
 }

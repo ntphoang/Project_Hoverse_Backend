@@ -3,6 +3,7 @@ package com.hoverse.backend.controller;
 import com.hoverse.backend.dto.PlaceFilterRequestDTO;
 import com.hoverse.backend.dto.PlaceRequestDTO;
 import com.hoverse.backend.dto.PlaceResponseDTO;
+import com.hoverse.backend.dto.PlaceUpdateRequestDTO;
 import com.hoverse.backend.service.PlaceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -39,6 +41,18 @@ public class PlaceController {
     public ResponseEntity<PlaceResponseDTO> getPlaceDetail(@PathVariable Long id){
         PlaceResponseDTO place = placeService.getPlaceDetail(id);
         return ResponseEntity.ok(place);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PlaceResponseDTO> updatePlace(
+            @PathVariable Long id,
+            Principal principal,
+            @RequestPart(value = "place") PlaceUpdateRequestDTO requestDTO,
+            @RequestPart(value = "files",required = false) List<MultipartFile> files
+
+    ){
+        String email = principal.getName();
+        return ResponseEntity.ok(placeService.updatePlace(id,email,requestDTO,files));
     }
 
     @GetMapping

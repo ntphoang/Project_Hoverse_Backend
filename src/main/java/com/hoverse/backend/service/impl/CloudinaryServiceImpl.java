@@ -2,6 +2,7 @@ package com.hoverse.backend.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.hoverse.backend.dto.CloudinaryDeleteResponseDTO;
 import com.hoverse.backend.dto.CloudinaryUploadResponseDTO;
 import com.hoverse.backend.enums.MediaType;
 import com.hoverse.backend.exception.BadRequestException;
@@ -58,6 +59,15 @@ public class CloudinaryServiceImpl implements CloudinaryService {
             return toResponseDTO(response);
         } catch (IOException e) {
             throw new CloudinaryUploadException("Tải ảnh lên Cloudinary thất bại!",e);
+        }
+    }
+
+    @Override
+    public void deleteFile(String publicId) {
+        try {
+            cloudinary.uploader().destroy(publicId,ObjectUtils.emptyMap());
+        } catch (IOException e) {
+            throw new CloudinaryUploadException("Xóa ảnh trên Cloudinary thất bại!",e);
         }
     }
 }

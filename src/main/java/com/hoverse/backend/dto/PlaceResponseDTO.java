@@ -3,6 +3,7 @@ package com.hoverse.backend.dto;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -27,9 +28,14 @@ public class PlaceResponseDTO {
     private BigDecimal avgRating;
     private Integer reviewCount;
 
+    private Long categoryId;
     private String categoryName;
     private String categorySlug;
+
     private String authorName;
+    private String authorEmail;
 
     private Set<TagResponseDTO> tags;
+
+    private List<PlaceMediaResponseDTO> placeMediaList;
 }

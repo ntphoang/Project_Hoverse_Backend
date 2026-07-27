@@ -1,4 +1,4 @@
-package com.hoverse.backend.dto;
+package com.hoverse.backend.dto.cloudinary;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,15 +8,13 @@ import lombok.NoArgsConstructor;
 /**
  * Project_Hoverse_Backend
  * Author: Phi Hoàng
- * Date: 13/06/2026
+ * Date: 24/07/2026
  */
-
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthResponseDTO {
-    private String token;
-    private String email;
-    private String role;
+@Builder
+public class CloudinaryDeleteResponseDTO {
+    private int status;
+    private String message;
 }

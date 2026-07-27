@@ -1,6 +1,6 @@
 package com.hoverse.backend.service.impl;
 
-import com.hoverse.backend.dto.CategoryResponseDTO;
+import com.hoverse.backend.dto.category.CategoryResponseDTO;
 import com.hoverse.backend.entity.Category;
 import com.hoverse.backend.mapper.CategoryMapper;
 import com.hoverse.backend.repository.CategoryRepository;

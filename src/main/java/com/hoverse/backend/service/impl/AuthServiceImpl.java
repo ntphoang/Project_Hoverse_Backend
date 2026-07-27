@@ -1,7 +1,7 @@
 package com.hoverse.backend.service.impl;
 
-import com.hoverse.backend.dto.AuthRequestDTO;
-import com.hoverse.backend.dto.AuthResponseDTO;
+import com.hoverse.backend.dto.user.AuthRequestDTO;
+import com.hoverse.backend.dto.user.AuthResponseDTO;
 import com.hoverse.backend.entity.User;
 import com.hoverse.backend.enums.Role;
 import com.hoverse.backend.enums.UserStatus;

@@ -1,6 +1,6 @@
 package com.hoverse.backend.service;
 
-import com.hoverse.backend.dto.TagResponseDTO;
+import com.hoverse.backend.dto.tag.TagResponseDTO;
 
 import java.util.List;
 

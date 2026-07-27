@@ -88,6 +88,9 @@ public class Place {
     @OneToMany(mappedBy = "place",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlaceMedia> placeMediaList;
 
+    @Version
+    private Long version;
+
     @ManyToMany()
     @JoinTable(
             name = "place_tags",
@@ -105,6 +108,7 @@ public class Place {
         if(this.avgRating == null) this.avgRating = BigDecimal.ZERO;
         if(this.reviewCount == null) this.reviewCount = 0;
         if(this.viewCount == null) this.viewCount = 0;
+        if(this.version == null) this.version = 0L;
     }
 
     @PreUpdate

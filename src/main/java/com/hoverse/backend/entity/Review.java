@@ -66,13 +66,8 @@ public class Review {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "review_images",
-            joinColumns = @JoinColumn(name = "review_id")
-    )
-    @Column(name = "image_url")
-    private List<String> images;
+    @OneToMany(mappedBy = "review",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewMedia> reviewMediaList;
 
     @PrePersist
     protected void onCreate(){

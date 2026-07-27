@@ -1,9 +1,9 @@
 package com.hoverse.backend.controller;
 
-import com.hoverse.backend.dto.PlaceFilterRequestDTO;
-import com.hoverse.backend.dto.PlaceRequestDTO;
-import com.hoverse.backend.dto.PlaceResponseDTO;
-import com.hoverse.backend.dto.PlaceUpdateRequestDTO;
+import com.hoverse.backend.dto.place.PlaceFilterRequestDTO;
+import com.hoverse.backend.dto.place.PlaceRequestDTO;
+import com.hoverse.backend.dto.place.PlaceResponseDTO;
+import com.hoverse.backend.dto.place.PlaceUpdateRequestDTO;
 import com.hoverse.backend.service.PlaceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,7 @@
 package com.hoverse.backend.controller;
 
-import com.hoverse.backend.dto.AuthRequestDTO;
-import com.hoverse.backend.dto.AuthResponseDTO;
+import com.hoverse.backend.dto.user.AuthRequestDTO;
+import com.hoverse.backend.dto.user.AuthResponseDTO;
 import com.hoverse.backend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

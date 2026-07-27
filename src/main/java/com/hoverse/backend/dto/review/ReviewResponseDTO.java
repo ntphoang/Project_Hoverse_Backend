@@ -1,4 +1,4 @@
-package com.hoverse.backend.dto;
+package com.hoverse.backend.dto.review;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,10 +24,11 @@ public class ReviewResponseDTO {
     private Integer likeCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<String> images;
 
     private String username;
     private String avatarUrl;
 
     private String placeTitle;
+
+    private List<ReviewMediaResponseDTO> reviewMediaList;
 }

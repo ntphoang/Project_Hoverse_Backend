@@ -1,6 +1,6 @@
 package com.hoverse.backend.service;
 
-import com.hoverse.backend.dto.CategoryResponseDTO;
+import com.hoverse.backend.dto.category.CategoryResponseDTO;
 
 import java.util.List;
 

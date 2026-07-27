@@ -1,6 +1,5 @@
-package com.hoverse.backend.dto;
+package com.hoverse.backend.dto.place;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 /**

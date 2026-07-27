@@ -1,6 +1,6 @@
 package com.hoverse.backend.mapper;
 
-import com.hoverse.backend.dto.PlaceMediaResponseDTO;
+import com.hoverse.backend.dto.place.PlaceMediaResponseDTO;
 import com.hoverse.backend.entity.PlaceMedia;
 import org.mapstruct.Mapper;
 

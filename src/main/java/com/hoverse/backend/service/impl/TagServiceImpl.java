@@ -1,7 +1,6 @@
 package com.hoverse.backend.service.impl;
 
-import com.hoverse.backend.dto.TagResponseDTO;
-import com.hoverse.backend.entity.Tag;
+import com.hoverse.backend.dto.tag.TagResponseDTO;
 import com.hoverse.backend.mapper.TagMapper;
 import com.hoverse.backend.repository.TagRepository;
 import com.hoverse.backend.service.TagService;
@@ -9,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Project_Hoverse_Backend

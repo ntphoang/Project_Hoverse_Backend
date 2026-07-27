@@ -1,7 +1,6 @@
 package com.hoverse.backend.service;
 
-import com.hoverse.backend.dto.CloudinaryDeleteResponseDTO;
-import com.hoverse.backend.dto.CloudinaryUploadResponseDTO;
+import com.hoverse.backend.dto.cloudinary.CloudinaryUploadResponseDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 /**

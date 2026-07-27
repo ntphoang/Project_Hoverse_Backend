@@ -2,8 +2,7 @@ package com.hoverse.backend.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.hoverse.backend.dto.CloudinaryDeleteResponseDTO;
-import com.hoverse.backend.dto.CloudinaryUploadResponseDTO;
+import com.hoverse.backend.dto.cloudinary.CloudinaryUploadResponseDTO;
 import com.hoverse.backend.enums.MediaType;
 import com.hoverse.backend.exception.BadRequestException;
 import com.hoverse.backend.exception.CloudinaryUploadException;

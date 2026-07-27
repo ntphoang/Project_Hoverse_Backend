@@ -1,11 +1,10 @@
 package com.hoverse.backend.mapper;
 
-import com.hoverse.backend.dto.PlaceRequestDTO;
-import com.hoverse.backend.dto.PlaceResponseDTO;
+import com.hoverse.backend.dto.place.PlaceRequestDTO;
+import com.hoverse.backend.dto.place.PlaceResponseDTO;
 import com.hoverse.backend.entity.Place;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.springframework.stereotype.Component;
 
 /**
  * Project_TimKiemDiaDiemVuiChoi

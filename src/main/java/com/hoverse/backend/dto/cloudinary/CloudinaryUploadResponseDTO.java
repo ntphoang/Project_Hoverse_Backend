@@ -1,4 +1,4 @@
-package com.hoverse.backend.dto;
+package com.hoverse.backend.dto.cloudinary;
 
 import com.hoverse.backend.enums.MediaType;
 import lombok.AllArgsConstructor;
@@ -9,15 +9,14 @@ import lombok.NoArgsConstructor;
 /**
  * Project_Hoverse_Backend
  * Author: Phi Hoàng
- * Date: 25/07/2026
+ * Date: 09/07/2026
  */
-
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class PlaceMediaResponseDTO {
-    private Long id;
+public class CloudinaryUploadResponseDTO {
     private String url;
+    private String publicId;
     private MediaType type;
 }

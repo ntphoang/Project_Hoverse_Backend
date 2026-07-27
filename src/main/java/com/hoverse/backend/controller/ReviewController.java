@@ -1,16 +1,19 @@
 package com.hoverse.backend.controller;
 
-import com.hoverse.backend.dto.ReviewRequestDTO;
-import com.hoverse.backend.dto.ReviewResponseDTO;
+import com.hoverse.backend.dto.review.ReviewRequestDTO;
+import com.hoverse.backend.dto.review.ReviewResponseDTO;
 import com.hoverse.backend.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.util.List;
 
 /**
  * Project_Hoverse_Backend
@@ -23,11 +26,16 @@ import java.security.Principal;
 public class ReviewController {
     private final ReviewService reviewService;
 
-    @PostMapping("/{id}/reviews")
-    public ResponseEntity<?> createReview(@Valid @RequestBody ReviewRequestDTO requestDTO, @PathVariable Long id, Principal principal){
+    @PostMapping(value = "/{id}/reviews",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> createReview(
+            @RequestPart(value = "review") @Valid ReviewRequestDTO requestDTO,
+            @RequestPart(value = "files") List<MultipartFile> files,
+            @PathVariable Long id,
+            Principal principal
+            ){
         String email = principal.getName();
-        reviewService.createReview(id,email,requestDTO);
-        return ResponseEntity.ok("Đã thêm đánh giá thành công!");
+        ReviewResponseDTO responseDTO = reviewService.createReview(id,email,requestDTO,files);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/{id}/reviews")

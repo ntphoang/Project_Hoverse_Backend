@@ -1,6 +1,6 @@
 package com.hoverse.backend.mapper;
 
-import com.hoverse.backend.dto.UserProfileResponseDTO;
+import com.hoverse.backend.dto.user.UserProfileResponseDTO;
 import com.hoverse.backend.entity.User;
 import org.mapstruct.Mapper;
 

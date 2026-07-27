@@ -1,4 +1,4 @@
-package com.hoverse.backend.dto;
+package com.hoverse.backend.dto.review;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

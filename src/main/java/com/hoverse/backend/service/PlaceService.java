@@ -1,11 +1,9 @@
 package com.hoverse.backend.service;
 
-import com.hoverse.backend.dto.PlaceFilterRequestDTO;
-import com.hoverse.backend.dto.PlaceRequestDTO;
-import com.hoverse.backend.dto.PlaceResponseDTO;
-import com.hoverse.backend.dto.PlaceUpdateRequestDTO;
-import com.hoverse.backend.mapper.PlaceMapper;
-import com.hoverse.backend.repository.PlaceRepository;
+import com.hoverse.backend.dto.place.PlaceFilterRequestDTO;
+import com.hoverse.backend.dto.place.PlaceRequestDTO;
+import com.hoverse.backend.dto.place.PlaceResponseDTO;
+import com.hoverse.backend.dto.place.PlaceUpdateRequestDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;

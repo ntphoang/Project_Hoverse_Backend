@@ -1,6 +1,5 @@
-package com.hoverse.backend.dto;
+package com.hoverse.backend.dto.place;
 
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

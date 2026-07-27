@@ -1,4 +1,4 @@
-package com.hoverse.backend.dto;
+package com.hoverse.backend.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,15 +8,15 @@ import lombok.NoArgsConstructor;
 /**
  * Project_Hoverse_Backend
  * Author: Phi Hoàng
- * Date: 13/07/2026
+ * Date: 13/06/2026
  */
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TagResponseDTO {
-    private Long id;
-    private String name;
-    private String iconName;
-    private boolean isActive;
+public class AuthResponseDTO {
+    private String token;
+    private String email;
+    private String role;
 }

@@ -1,6 +1,6 @@
 package com.hoverse.backend.service;
 
-import com.hoverse.backend.dto.UserProfileResponseDTO;
+import com.hoverse.backend.dto.user.UserProfileResponseDTO;
 
 /**
  * Project_Hoverse_Backend

@@ -1,9 +1,8 @@
 package com.hoverse.backend.mapper;
 
-import com.hoverse.backend.dto.TagResponseDTO;
+import com.hoverse.backend.dto.tag.TagResponseDTO;
 import com.hoverse.backend.entity.Tag;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 /**
  * Project_Hoverse_Backend

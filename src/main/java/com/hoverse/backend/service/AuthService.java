@@ -1,7 +1,7 @@
 package com.hoverse.backend.service;
 
-import com.hoverse.backend.dto.AuthRequestDTO;
-import com.hoverse.backend.dto.AuthResponseDTO;
+import com.hoverse.backend.dto.user.AuthRequestDTO;
+import com.hoverse.backend.dto.user.AuthResponseDTO;
 
 /**
  * Project_Hoverse_Backend

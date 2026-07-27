@@ -1,6 +1,6 @@
 package com.hoverse.backend.service.impl;
 
-import com.hoverse.backend.dto.UserProfileResponseDTO;
+import com.hoverse.backend.dto.user.UserProfileResponseDTO;
 import com.hoverse.backend.entity.User;
 import com.hoverse.backend.exception.ResourceNotFoundException;
 import com.hoverse.backend.mapper.UserMapper;

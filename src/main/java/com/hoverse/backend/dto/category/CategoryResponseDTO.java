@@ -1,4 +1,4 @@
-package com.hoverse.backend.dto;
+package com.hoverse.backend.dto.category;
 
 import lombok.Builder;
 import lombok.Data;

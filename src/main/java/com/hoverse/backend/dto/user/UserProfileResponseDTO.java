@@ -1,4 +1,4 @@
-package com.hoverse.backend.dto;
+package com.hoverse.backend.dto.user;
 
 import com.hoverse.backend.enums.UserStatus;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,6 @@
 package com.hoverse.backend.mapper;
 
-import com.hoverse.backend.dto.ReviewResponseDTO;
+import com.hoverse.backend.dto.review.ReviewResponseDTO;
 import com.hoverse.backend.entity.Review;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -10,7 +10,7 @@ import org.mapstruct.Mapping;
  * Author: Phi Hoàng
  * Date: 29/06/2026
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",uses = {ReviewMediaMapper.class})
 public interface ReviewMapper {
     @Mapping(source = "user.username",target = "username")
     @Mapping(source = "user.avatarUrl",target = "avatarUrl")

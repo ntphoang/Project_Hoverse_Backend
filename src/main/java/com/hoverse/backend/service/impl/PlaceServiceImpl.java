@@ -110,7 +110,8 @@ public class PlaceServiceImpl implements PlaceService {
                 Specification.where(PlaceSpecification.hasTitle(filterRequestDTO.getTitle()))
                         .and(PlaceSpecification.hasMinRating(filterRequestDTO.getMinRating()))
                         .and(PlaceSpecification.hasStatus(PlaceStatus.APPROVED))
-                        .and(PlaceSpecification.hasCategory(filterRequestDTO.getCategoryId()));
+                        .and(PlaceSpecification.hasCategory(filterRequestDTO.getCategoryId()))
+                        .and(PlaceSpecification.hasAllTags(filterRequestDTO.getTags()));
 
         Page<Place> places = placeRepository.findAll(specification,pageable);
         return places.map(placeMapper::toResponseDTO);

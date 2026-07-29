@@ -80,7 +80,7 @@ public class Place {
     private User user;
 
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
@@ -101,7 +101,7 @@ public class Place {
 
     @PrePersist
     protected void onCreate(){
-        this.createAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
 
         if(this.status == null) this.status = PlaceStatus.APPROVED;

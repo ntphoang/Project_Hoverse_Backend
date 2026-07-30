@@ -4,6 +4,8 @@ import com.hoverse.backend.dto.place.PlaceFilterRequestDTO;
 import com.hoverse.backend.dto.place.PlaceRequestDTO;
 import com.hoverse.backend.dto.place.PlaceResponseDTO;
 import com.hoverse.backend.dto.place.PlaceUpdateRequestDTO;
+import com.hoverse.backend.dto.placeFavorite.PlaceFavoriteResponseDTO;
+import com.hoverse.backend.service.PlaceFavoriteService;
 import com.hoverse.backend.service.PlaceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PlaceController {
     private final PlaceService placeService;
+    private final PlaceFavoriteService placeFavoriteService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PlaceResponseDTO> createPlace(
@@ -59,5 +62,12 @@ public class PlaceController {
     public ResponseEntity<?> getPlaceByConditions(@ModelAttribute PlaceFilterRequestDTO filterRequestDTO, Pageable pageable){
         Page<PlaceResponseDTO> places = placeService.getPlaceByConditions(filterRequestDTO,pageable);
         return ResponseEntity.ok(places);
+    }
+
+    @PostMapping("/{placeId}/favorite")
+    public ResponseEntity<?> toggleFavorite(@PathVariable Long placeId,Principal principal){
+        PlaceFavoriteResponseDTO responseDTO = placeFavoriteService.toggleFavorite(principal.getName(),placeId);
+        if(responseDTO == null) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(responseDTO);
     }
 }

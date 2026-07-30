@@ -91,6 +91,9 @@ public class Place {
     @Version
     private Long version;
 
+    @OneToMany(mappedBy = "place")
+    private Set<PlaceFavorite> placeFavories;
+
     @ManyToMany()
     @JoinTable(
             name = "place_tags",

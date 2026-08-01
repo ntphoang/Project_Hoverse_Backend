@@ -1,17 +1,21 @@
 package com.hoverse.backend.service.impl;
 
+import com.hoverse.backend.dto.place.PlaceResponseDTO;
 import com.hoverse.backend.dto.placeFavorite.PlaceFavoriteResponseDTO;
 import com.hoverse.backend.entity.Place;
 import com.hoverse.backend.entity.PlaceFavorite;
 import com.hoverse.backend.entity.User;
 import com.hoverse.backend.exception.ResourceNotFoundException;
 import com.hoverse.backend.mapper.PlaceFavoriteMapper;
+import com.hoverse.backend.mapper.PlaceMapper;
 import com.hoverse.backend.repository.PlaceFavoriteRepository;
 import com.hoverse.backend.repository.PlaceRepository;
 import com.hoverse.backend.repository.UserRepository;
 import com.hoverse.backend.service.PlaceFavoriteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,6 +33,7 @@ public class PlaceFavoriteServiceImpl implements PlaceFavoriteService {
     private final UserRepository userRepository;
     private final PlaceRepository placeRepository;
     private final PlaceFavoriteMapper placeFavoriteMapper;
+    private final PlaceMapper placeMapper;
 
     @Override
     public PlaceFavoriteResponseDTO toggleFavorite(String email, Long placeId) {
@@ -69,5 +74,14 @@ public class PlaceFavoriteServiceImpl implements PlaceFavoriteService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy user với email: "+email));
         return placeFavoriteRepository.getPlaceFavoriteIdByUserId(user.getId());
+    }
+
+    @Override
+    public Page<PlaceResponseDTO> getPlaceFavorites(String email, Pageable pageable) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy user với email: "+email));
+
+        return placeFavoriteRepository.getPlaceFavorites(user.getId(),pageable)
+                .map(placeMapper::toResponseDTO);
     }
 }

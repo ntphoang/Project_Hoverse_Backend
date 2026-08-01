@@ -1,6 +1,10 @@
 package com.hoverse.backend.service;
 
+import com.hoverse.backend.dto.place.PlaceResponseDTO;
 import com.hoverse.backend.dto.placeFavorite.PlaceFavoriteResponseDTO;
+import com.hoverse.backend.entity.Place;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -12,4 +16,5 @@ import java.util.List;
 public interface PlaceFavoriteService {
     PlaceFavoriteResponseDTO toggleFavorite(String email, Long placeId);
     List<Long> getPlaceFavoriteId(String email);
+    Page<PlaceResponseDTO> getPlaceFavorites(String email, Pageable pageable);
 }

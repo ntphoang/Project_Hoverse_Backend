@@ -7,6 +7,7 @@ import com.hoverse.backend.entity.VerificationToken;
 import com.hoverse.backend.enums.Role;
 import com.hoverse.backend.enums.TokenType;
 import com.hoverse.backend.enums.UserStatus;
+import com.hoverse.backend.exception.BadRequestException;
 import com.hoverse.backend.exception.ResourceNotFoundException;
 import com.hoverse.backend.repository.UserRepository;
 import com.hoverse.backend.repository.VerificationTokenRepository;
@@ -118,5 +119,39 @@ public class AuthServiceImpl implements AuthService {
 
         user.setVerificationToken(null);
         verificationTokenRepository.delete(verificationToken);
+    }
+
+    @Override
+    public void resendVerify(String email) {
+        if(email==null){
+            throw new BadRequestException("Tài khoản không hợp lệ!");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy user với email: "+email));
+
+        VerificationToken tokenOld = user.getVerificationToken();
+
+        if(tokenOld!=null && tokenOld.getExpiredAt().isAfter(LocalDateTime.now())){
+            throw new BadRequestException("Email xác thực cũ vẫn còn hiệu lực, vui lòng thử lại sau!");
+        }
+
+        if(tokenOld!=null && tokenOld.getExpiredAt().isBefore(LocalDateTime.now())){
+            user.setVerificationToken(null);
+            verificationTokenRepository.delete(tokenOld);
+        }
+
+        String emailToken = UUID.randomUUID().toString();
+        VerificationToken verificationToken = VerificationToken.builder()
+                .type(TokenType.VERIFY_EMAIL)
+                .expiredAt(LocalDateTime.now().plusMinutes(15))
+                .token(emailToken)
+                .user(user)
+                .build();
+
+        user.setVerificationToken(verificationToken);
+        userRepository.save(user);
+
+        emailServiceImpl.sendVerificationEmail(user.getEmail(),emailToken);
     }
 }

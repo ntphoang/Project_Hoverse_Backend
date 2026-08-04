@@ -12,4 +12,5 @@ public interface AuthService {
     AuthResponseDTO register(AuthRequestDTO request);
     AuthResponseDTO login(AuthRequestDTO request);
     void verifyEmail(String token);
+    void resendVerify(String email);
 }

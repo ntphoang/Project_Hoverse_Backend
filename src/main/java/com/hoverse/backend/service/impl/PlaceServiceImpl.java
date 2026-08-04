@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,6 +61,10 @@ public class PlaceServiceImpl implements PlaceService {
                 .orElseThrow(()->new BadRequestException("Không tìm thấy danh mục với ID: "+requestDTO.getCategoryId()));
         User user = userRepository.findById(requestDTO.getUserId())
                 .orElseThrow(()->new BadRequestException("Không tìm thấy người dùng với ID: "+requestDTO.getUserId()));
+        if(!user.isEmailVerified()){
+            throw new AccessDeniedException("Vui lòng xác thực email để thực hiện chức năng này!");
+        }
+
         Place place = placeMapper.toEntity(requestDTO);
         List<Tag> tags = new ArrayList<>();
         if(requestDTO.getTagIds()!=null && !requestDTO.getTagIds().isEmpty()){
@@ -121,6 +126,10 @@ public class PlaceServiceImpl implements PlaceService {
     public PlaceResponseDTO updatePlace(Long placeId, String email, PlaceUpdateRequestDTO requestDTO, List<MultipartFile> files) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(()-> new ResourceNotFoundException("Không tìm thấy user với email: "+email));
+        if(!user.isEmailVerified()){
+            throw new AccessDeniedException("Vui lòng xác thực email để thực hiện chức năng này!");
+        }
+
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy địa điểm với id: "+placeId));
 

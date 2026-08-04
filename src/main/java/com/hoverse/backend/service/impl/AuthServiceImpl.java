@@ -3,19 +3,26 @@ package com.hoverse.backend.service.impl;
 import com.hoverse.backend.dto.user.AuthRequestDTO;
 import com.hoverse.backend.dto.user.AuthResponseDTO;
 import com.hoverse.backend.entity.User;
+import com.hoverse.backend.entity.VerificationToken;
 import com.hoverse.backend.enums.Role;
+import com.hoverse.backend.enums.TokenType;
 import com.hoverse.backend.enums.UserStatus;
+import com.hoverse.backend.exception.ResourceNotFoundException;
 import com.hoverse.backend.repository.UserRepository;
+import com.hoverse.backend.repository.VerificationTokenRepository;
 import com.hoverse.backend.security.JwtUtils;
 import com.hoverse.backend.service.AuthService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.UUID;
 
 /**
  * Project_Hoverse_Backend
@@ -23,27 +30,25 @@ import java.util.Collections;
  * Date: 13/06/2026
  */
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtUtils jwtUtils;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtils jwtUtils;
+    private final AuthenticationManager authenticationManager;
+    private final EmailServiceImpl emailServiceImpl;
+    private final VerificationTokenRepository verificationTokenRepository;
 
     @Override
     public AuthResponseDTO register(AuthRequestDTO request) {
+        // Kiểm tra email có tồn tại hay chưa
         if(userRepository.findByEmail(request.getEmail()).isPresent()){
             throw new RuntimeException("Email đã được sử dụng");
         }
 
+        // Lưu user vào db
         String email = request.getEmail();
-        String generatedUsername = email.substring(0,email.indexOf("@"));
+        String generatedUsername = email.substring(0,email.indexOf("@"))+"_"+System.currentTimeMillis();
         User user = User.builder()
                 .username(generatedUsername)
                 .email(request.getEmail())
@@ -51,18 +56,21 @@ public class AuthServiceImpl implements AuthService {
                 .role(Role.USER)
                 .status(UserStatus.ACTIVE)
                 .build();
+
+        // Xác thực email
+        String emailToken = UUID.randomUUID().toString();
+        VerificationToken verificationToken = VerificationToken.builder()
+                .type(TokenType.VERIFY_EMAIL)
+                .expiredAt(LocalDateTime.now().plusMinutes(15))
+                .token(emailToken)
+                .user(user)
+                .build();
+
+        user.setVerificationToken(verificationToken);
         userRepository.save(user);
 
-        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                Collections.emptyList()
-        );
-
-        String jwtToken = jwtUtils.generateToken(userDetails);
-
+        emailServiceImpl.sendVerificationEmail(email,emailToken);
         return AuthResponseDTO.builder()
-                .token(jwtToken)
                 .email(user.getEmail())
                 .role(user.getRole().name())
                 .build();
@@ -89,6 +97,26 @@ public class AuthServiceImpl implements AuthService {
                 .token(jwtToken)
                 .email(user.getEmail())
                 .role(user.getRole().name())
+                .isEmailVerified(user.isEmailVerified())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void verifyEmail(String token) {
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
+                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy token: "+token));
+
+        if(verificationToken.getExpiredAt().isBefore(LocalDateTime.now())){
+            verificationTokenRepository.deleteById(verificationToken.getId());
+            throw new RuntimeException("Token đã hết hạn. Vui lòng đăng ký lại hoặc yêu cầu gửi mail mới!");
+        }
+
+        User user = verificationToken.getUser();
+        user.setEmailVerified(true);
+        userRepository.save(user);
+
+        user.setVerificationToken(null);
+        verificationTokenRepository.delete(verificationToken);
     }
 }

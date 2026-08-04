@@ -39,9 +39,6 @@ public class PlaceFavoriteServiceImpl implements PlaceFavoriteService {
     public PlaceFavoriteResponseDTO toggleFavorite(String email, Long placeId) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy user với email: "+email));
-        if(!user.isEmailVerified()){
-            throw new AccessDeniedException("Vui lòng xác thực email để thực hiện chức năng này!");
-        }
 
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy place với id: "+placeId));
@@ -77,9 +74,6 @@ public class PlaceFavoriteServiceImpl implements PlaceFavoriteService {
         }
         User user = userRepository.findByEmail(email)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy user với email: "+email));
-        if(!user.isEmailVerified()){
-            throw new AccessDeniedException("Vui lòng xác thực email để thực hiện chức năng này!");
-        }
 
         return placeFavoriteRepository.getPlaceFavoriteIdByUserId(user.getId());
     }
@@ -88,9 +82,6 @@ public class PlaceFavoriteServiceImpl implements PlaceFavoriteService {
     public Page<PlaceResponseDTO> getPlaceFavorites(String email, Pageable pageable) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy user với email: "+email));
-        if(!user.isEmailVerified()){
-            throw new AccessDeniedException("Vui lòng xác thực email để thực hiện chức năng này!");
-        }
 
         return placeFavoriteRepository.getPlaceFavorites(user.getId(),pageable)
                 .map(placeMapper::toResponseDTO);

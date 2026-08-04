@@ -2,14 +2,16 @@ package com.hoverse.backend.controller;
 
 import com.hoverse.backend.dto.user.AuthRequestDTO;
 import com.hoverse.backend.dto.user.AuthResponseDTO;
+import com.hoverse.backend.exception.BadRequestException;
+import com.hoverse.backend.exception.ResourceNotFoundException;
 import com.hoverse.backend.service.AuthService;
+import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 /**
  * Project_Hoverse_Backend
@@ -41,5 +43,22 @@ public class AuthController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Tài khoản hoặc mật khẩu không chính xác!");
         }
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<?> verifyEmail(@RequestParam String token){
+        try {
+            authService.verifyEmail(token);
+            return ResponseEntity.ok("Xác thực email thành công!");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/resend-verify")
+    public ResponseEntity<?> resendVerify(Principal principal){
+        String email = principal.getName();
+        authService.resendVerify(email);
+        return ResponseEntity.noContent().build();
     }
 }

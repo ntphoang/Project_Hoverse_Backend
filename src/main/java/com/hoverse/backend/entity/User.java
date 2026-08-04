@@ -52,12 +52,19 @@ public class User {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "user")
-    private Set<PlaceFavorite> placeFavories;
+    private Set<PlaceFavorite> placeFavorites;
+
+    @Column(name = "is_email_verified")
+    private boolean isEmailVerified;
+
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private VerificationToken verificationToken;
 
     @PrePersist
     protected void onCreate(){
         this.createAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        this.isEmailVerified = false;
 
         if(this.status == null) this.status = UserStatus.ACTIVE;
         if(this.role == null) this.role = Role.USER;

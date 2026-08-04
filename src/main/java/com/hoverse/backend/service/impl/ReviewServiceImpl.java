@@ -22,6 +22,7 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.resilience.annotation.Retryable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,6 +56,9 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy địa điểm với id là: "+placeId));
         User userRepo = userRepository.findByEmail(email)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy người dùng với email là: "+email));
+        if(!userRepo.isEmailVerified()){
+            throw new AccessDeniedException("Vui lòng xác thực email để thực hiện chức năng này!");
+        }
 
         Optional<Review> reviewRepo = reviewRepository.findReviewByUserIdAndPlaceId(userRepo.getId(),placeRepo.getId());
         if(reviewRepo.isPresent()){

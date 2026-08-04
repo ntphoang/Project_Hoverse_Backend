@@ -16,10 +16,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Project_Hoverse_Backend
@@ -39,6 +39,7 @@ public class PlaceFavoriteServiceImpl implements PlaceFavoriteService {
     public PlaceFavoriteResponseDTO toggleFavorite(String email, Long placeId) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy user với email: "+email));
+
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy place với id: "+placeId));
 
@@ -73,6 +74,7 @@ public class PlaceFavoriteServiceImpl implements PlaceFavoriteService {
         }
         User user = userRepository.findByEmail(email)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy user với email: "+email));
+
         return placeFavoriteRepository.getPlaceFavoriteIdByUserId(user.getId());
     }
 

@@ -95,9 +95,12 @@ public class AuthServiceImpl implements AuthService {
         String jwtToken = jwtUtils.generateToken(userDetails);
 
         return AuthResponseDTO.builder()
+                .id(user.getId())
                 .token(jwtToken)
                 .email(user.getEmail())
                 .role(user.getRole().name())
+                .fullName(user.getFullName())
+                .avatarUrl(user.getAvatarUrl())
                 .isEmailVerified(user.isEmailVerified())
                 .build();
     }

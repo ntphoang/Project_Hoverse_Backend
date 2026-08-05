@@ -1,6 +1,7 @@
 package com.hoverse.backend.service;
 
 import com.hoverse.backend.dto.user.UserProfileResponseDTO;
+import com.hoverse.backend.dto.user.UserUpdateProfileRequestDTO;
 
 /**
  * Project_Hoverse_Backend
@@ -9,4 +10,5 @@ import com.hoverse.backend.dto.user.UserProfileResponseDTO;
  */
 public interface UserService {
     UserProfileResponseDTO getUserProfile(String email);
+    UserProfileResponseDTO updateUserProfile(String email, UserUpdateProfileRequestDTO requestDTO);
 }

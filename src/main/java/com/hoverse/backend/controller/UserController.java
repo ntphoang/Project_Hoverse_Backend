@@ -1,11 +1,10 @@
 package com.hoverse.backend.controller;
 
+import com.hoverse.backend.dto.user.UserUpdateProfileRequestDTO;
 import com.hoverse.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
@@ -24,5 +23,11 @@ public class UserController {
     public ResponseEntity<?> getUserProfile(Principal principal){
         String email = principal.getName();
         return ResponseEntity.ok(userService.getUserProfile(email));
+    }
+
+    @PatchMapping("/me")
+    public ResponseEntity<?> updateUserProfile(Principal principal,@RequestBody UserUpdateProfileRequestDTO requestDTO){
+        String email = principal.getName();
+        return ResponseEntity.ok(userService.updateUserProfile(email,requestDTO));
     }
 }

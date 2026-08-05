@@ -16,8 +16,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthResponseDTO {
+    private Long id;
     private String token;
     private String email;
     private String role;
+    private String fullName;
+    private String avatarUrl;
     private boolean isEmailVerified;
 }

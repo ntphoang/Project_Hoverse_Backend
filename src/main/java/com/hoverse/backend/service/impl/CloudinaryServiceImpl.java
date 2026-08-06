@@ -43,16 +43,21 @@ public class CloudinaryServiceImpl implements CloudinaryService {
     }
 
     @Override
-    public CloudinaryUploadResponseDTO uploadFile(MultipartFile file){
+    public CloudinaryUploadResponseDTO uploadFile(MultipartFile file,String addressFolder){
         if(file == null || file.isEmpty()){
             throw new BadRequestException("Vui lòng chọn file để tải lên!");
         }
+
+        if(file.getContentType()==null || !file.getContentType().startsWith("image/")){
+            throw new BadRequestException("Vui lòng chọn file ảnh hợp lệ!");
+        }
+
         try {
             byte[] fileBytes = file.getBytes();
 
             Map<String,Object> response = cloudinary.uploader().upload(
                     fileBytes,
-                    ObjectUtils.asMap("folder","hoverse/places")
+                    ObjectUtils.asMap("folder","hoverse"+addressFolder)
             );
 
             return toResponseDTO(response);

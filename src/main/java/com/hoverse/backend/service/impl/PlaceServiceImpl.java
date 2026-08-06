@@ -81,7 +81,7 @@ public class PlaceServiceImpl implements PlaceService {
         List<PlaceMedia> placeMediaList = new ArrayList<>();
         if(files!=null && !files.isEmpty()){
             for(MultipartFile file: files){
-                CloudinaryUploadResponseDTO responseDTO = cloudinaryService.uploadFile(file);
+                CloudinaryUploadResponseDTO responseDTO = cloudinaryService.uploadFile(file,"/places");
                 placeMediaList.add(toEntity(responseDTO,place));
             }
         }
@@ -158,7 +158,7 @@ public class PlaceServiceImpl implements PlaceService {
         place.getPlaceMediaList().removeAll(deleteFiles);
         if(files!=null && !files.isEmpty()){
             for(MultipartFile file: files){
-                CloudinaryUploadResponseDTO responseDTO = cloudinaryService.uploadFile(file);
+                CloudinaryUploadResponseDTO responseDTO = cloudinaryService.uploadFile(file,"/places");
                 place.getPlaceMediaList().add(toEntity(responseDTO,place));
             }
         }

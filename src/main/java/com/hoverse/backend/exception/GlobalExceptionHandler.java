@@ -41,4 +41,18 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponseDTO);
     }
+
+    @ExceptionHandler(DatabaseOperationException.class)
+    public ResponseEntity<?> handleDatabaseOperation(DatabaseOperationException ex){
+        String message = ex.getMessage();
+
+        ErrorResponseDTO errorResponseDTO = ErrorResponseDTO.builder()
+                .time(LocalDateTime.now())
+                .message(message)
+                .code("500")
+                .build();
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponseDTO);
+    }
+
 }

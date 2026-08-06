@@ -2,6 +2,7 @@ package com.hoverse.backend.service;
 
 import com.hoverse.backend.dto.user.UserProfileResponseDTO;
 import com.hoverse.backend.dto.user.UserUpdateProfileRequestDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Project_Hoverse_Backend
@@ -11,4 +12,5 @@ import com.hoverse.backend.dto.user.UserUpdateProfileRequestDTO;
 public interface UserService {
     UserProfileResponseDTO getUserProfile(String email);
     UserProfileResponseDTO updateUserProfile(String email, UserUpdateProfileRequestDTO requestDTO);
+    UserProfileResponseDTO uploadAvatar(String email, MultipartFile file);
 }

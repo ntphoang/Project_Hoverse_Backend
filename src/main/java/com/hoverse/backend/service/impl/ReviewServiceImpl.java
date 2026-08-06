@@ -68,7 +68,7 @@ public class ReviewServiceImpl implements ReviewService {
         List<ReviewMedia> reviewMediaList = new ArrayList<>();
         if(files!=null && !files.isEmpty()){
             for(MultipartFile file: files){
-                CloudinaryUploadResponseDTO responseDTO = cloudinaryService.uploadFile(file);
+                CloudinaryUploadResponseDTO responseDTO = cloudinaryService.uploadFile(file,"/reviews");
                 reviewMediaList.add(cloudinaryMapper.toEntity(responseDTO));
             }
         }

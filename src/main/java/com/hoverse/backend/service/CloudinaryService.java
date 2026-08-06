@@ -9,6 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
  * Date: 08/07/2026
  */
 public interface CloudinaryService {
-     CloudinaryUploadResponseDTO uploadFile(MultipartFile file);
+     CloudinaryUploadResponseDTO uploadFile(MultipartFile file, String addressFolder);
      void deleteFile(String publicId);
 }

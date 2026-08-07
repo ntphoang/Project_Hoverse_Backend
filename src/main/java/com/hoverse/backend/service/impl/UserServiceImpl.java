@@ -1,10 +1,12 @@
 package com.hoverse.backend.service.impl;
 
 import com.hoverse.backend.dto.cloudinary.CloudinaryUploadResponseDTO;
+import com.hoverse.backend.dto.user.UserChangePasswordRequestDTO;
 import com.hoverse.backend.dto.user.UserProfileResponseDTO;
 import com.hoverse.backend.dto.user.UserUpdateProfileRequestDTO;
 import com.hoverse.backend.entity.User;
 import com.hoverse.backend.enums.UserStatus;
+import com.hoverse.backend.exception.BadRequestException;
 import com.hoverse.backend.exception.CloudinaryUploadException;
 import com.hoverse.backend.exception.DatabaseOperationException;
 import com.hoverse.backend.exception.ResourceNotFoundException;
@@ -13,6 +15,7 @@ import com.hoverse.backend.repository.UserRepository;
 import com.hoverse.backend.service.CloudinaryService;
 import com.hoverse.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +30,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final CloudinaryService cloudinaryService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserProfileResponseDTO getUserProfile(String email) {
@@ -72,5 +76,22 @@ public class UserServiceImpl implements UserService {
             cloudinaryService.deleteFile(cloudinaryUploadResponseDTO.getPublicId());
             throw new DatabaseOperationException("Lưu ảnh vào database thất bại!");
         }
+    }
+
+    @Override
+    public UserProfileResponseDTO changePassword(String email, UserChangePasswordRequestDTO requestDTO) {
+        User user = userRepository.findByEmailAndStatus(email,UserStatus.ACTIVE)
+                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy user với email: "+email+" hoặc tài khoản đã bị khóa!"));
+
+        if(!passwordEncoder.matches(requestDTO.getOldPassword(),user.getPassword())){
+            throw new BadRequestException("Mật khẩu cũ không đúng. Vui lòng thử lại!");
+        }
+
+        if(requestDTO.getOldPassword().equals(requestDTO.getNewPassword())){
+            throw new BadRequestException("Vui lòng nhâp mật khẩu mới khác với mật khẩu cũ!");
+        }
+
+        user.setPassword(passwordEncoder.encode(requestDTO.getNewPassword()));
+        return userMapper.toResponseDTO(userRepository.save(user));
     }
 }

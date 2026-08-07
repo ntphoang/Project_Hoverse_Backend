@@ -1,7 +1,9 @@
 package com.hoverse.backend.controller;
 
+import com.hoverse.backend.dto.user.UserChangePasswordRequestDTO;
 import com.hoverse.backend.dto.user.UserUpdateProfileRequestDTO;
 import com.hoverse.backend.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,5 +39,11 @@ public class UserController {
     public ResponseEntity<?> uploadAvatar(Principal principal, @RequestPart(value ="file") MultipartFile file){
         String email = principal.getName();
         return ResponseEntity.ok(userService.uploadAvatar(email,file));
+    }
+
+    @PatchMapping("/password")
+    public ResponseEntity<?> changePassword(Principal principal, @Valid @RequestBody UserChangePasswordRequestDTO requestDTO){
+        String email = principal.getName();
+        return ResponseEntity.ok(userService.changePassword(email,requestDTO));
     }
 }

@@ -25,6 +25,8 @@ public class ReviewResponseDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private Long authorId;
+    private String authorFullname;
     private String username;
     private String avatarUrl;
 

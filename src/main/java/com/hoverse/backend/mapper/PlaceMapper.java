@@ -18,9 +18,9 @@ public interface PlaceMapper {
     @Mapping(source = "category.slug",target = "categorySlug")
     @Mapping(source = "user.username",target = "authorName")
     @Mapping(source = "user.email",target = "authorEmail")
+    @Mapping(source = "user.avatarUrl",target = "authorAvatarUrl")
     PlaceResponseDTO toResponseDTO(Place place);
 
     @Mapping(source = "categoryId",target = "category.id")
-    @Mapping(source = "userId",target = "user.id")
     Place toEntity(PlaceRequestDTO dto);
 }

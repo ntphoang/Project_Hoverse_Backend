@@ -14,6 +14,8 @@ import org.mapstruct.Mapping;
 public interface ReviewMapper {
     @Mapping(source = "user.username",target = "username")
     @Mapping(source = "user.avatarUrl",target = "avatarUrl")
+    @Mapping(source = "user.id",target = "authorId")
+    @Mapping(source = "user.fullName",target = "authorFullname")
     @Mapping(source = "place.title",target = "placeTitle")
     ReviewResponseDTO toResponseDTO(Review review);
 }

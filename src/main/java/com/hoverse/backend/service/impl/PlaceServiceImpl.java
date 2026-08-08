@@ -56,11 +56,11 @@ public class PlaceServiceImpl implements PlaceService {
 //    PHƯƠNG THỨC TẠO PLACE MỚI
     @Transactional
     @Override
-    public PlaceResponseDTO createPlace(PlaceRequestDTO requestDTO, List<MultipartFile> files) {
+    public PlaceResponseDTO createPlace(String email,PlaceRequestDTO requestDTO, List<MultipartFile> files) {
         Category category = categoryRepository.findById(requestDTO.getCategoryId())
                 .orElseThrow(()->new BadRequestException("Không tìm thấy danh mục với ID: "+requestDTO.getCategoryId()));
-        User user = userRepository.findById(requestDTO.getUserId())
-                .orElseThrow(()->new BadRequestException("Không tìm thấy người dùng với ID: "+requestDTO.getUserId()));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy người dùng với email: "+email));
         if(!user.isEmailVerified()){
             throw new AccessDeniedException("Vui lòng xác thực email để thực hiện chức năng này!");
         }

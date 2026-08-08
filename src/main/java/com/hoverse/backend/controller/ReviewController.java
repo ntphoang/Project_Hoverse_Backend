@@ -2,6 +2,7 @@ package com.hoverse.backend.controller;
 
 import com.hoverse.backend.dto.review.ReviewRequestDTO;
 import com.hoverse.backend.dto.review.ReviewResponseDTO;
+import com.hoverse.backend.dto.review.ReviewUpdateRequestDTO;
 import com.hoverse.backend.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,5 +43,21 @@ public class ReviewController {
     public ResponseEntity<?> getReviewsOfPlace(@PathVariable Long id, Pageable pageable){
         Page<ReviewResponseDTO> reviewResponseDTOS = reviewService.findReviewsByPlaceId(id,pageable);
         return ResponseEntity.ok(reviewResponseDTOS);
+    }
+
+    @PatchMapping(value = "/reviews/{reviewId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateReview(
+            Principal principal,
+            @PathVariable Long reviewId,
+            @RequestPart(value = "review") @Valid ReviewUpdateRequestDTO requestDTO,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files){
+        String email = principal.getName();
+        return ResponseEntity.ok(reviewService.updateReview(email,reviewId,requestDTO,files));
+    }
+
+    @DeleteMapping("/reviews/{reviewId}")
+    public ResponseEntity<?> deleteReview(Principal principal,@PathVariable Long reviewId){
+        String email = principal.getName();
+        return ResponseEntity.ok(reviewService.deleteReview(email,reviewId));
     }
 }

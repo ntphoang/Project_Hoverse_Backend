@@ -66,6 +66,9 @@ public class Review {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     @OneToMany(mappedBy = "review",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewMedia> reviewMediaList;
 
@@ -73,6 +76,7 @@ public class Review {
     protected void onCreate(){
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        this.deletedAt = null;
 
         if(this.likeCount == null) this.likeCount = 0;
         if(this.status == null) this.status = ReviewStatus.VISIBLE;

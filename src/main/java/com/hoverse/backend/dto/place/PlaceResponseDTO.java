@@ -37,6 +37,7 @@ public class PlaceResponseDTO {
 
     private String authorName;
     private String authorEmail;
+    private String authorAvatarUrl;
 
     private Set<TagResponseDTO> tags;
 

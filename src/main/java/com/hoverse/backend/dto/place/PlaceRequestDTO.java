@@ -31,9 +31,6 @@ public class PlaceRequestDTO {
     @NotNull(message = "Danh mục không được để trống (category_id)")
     private Long categoryId;
 
-    @NotNull(message = "Người tạo không được để trống (user_id)")
-    private Long userId;
-
     private String description;
 
     private Set<Long> tagIds;

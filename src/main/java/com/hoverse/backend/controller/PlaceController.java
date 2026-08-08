@@ -33,10 +33,12 @@ public class PlaceController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PlaceResponseDTO> createPlace(
+            Principal principal,
             @RequestPart(value = "place") @Valid PlaceRequestDTO requestDTO,
             @RequestPart(value = "files",required = false) List<MultipartFile> files
     ){
-        PlaceResponseDTO createPlace = placeService.createPlace(requestDTO,files);
+        String email = principal.getName();
+        PlaceResponseDTO createPlace = placeService.createPlace(email,requestDTO,files);
         return ResponseEntity.ok(createPlace);
     }
 

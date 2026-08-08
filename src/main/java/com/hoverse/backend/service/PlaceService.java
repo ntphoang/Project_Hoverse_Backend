@@ -16,7 +16,7 @@ import java.util.List;
  * Date: 31/05/2026
  */
 public interface PlaceService {
-    PlaceResponseDTO createPlace(PlaceRequestDTO requestDTO, List<MultipartFile> files);
+    PlaceResponseDTO createPlace(String email,PlaceRequestDTO requestDTO, List<MultipartFile> files);
     PlaceResponseDTO getPlaceDetail(Long placeId);
     Page<PlaceResponseDTO> getPlaceByConditions(PlaceFilterRequestDTO filterRequestDTO,Pageable pageable);
     PlaceResponseDTO updatePlace(Long placeId, String email, PlaceUpdateRequestDTO requestDTO, List<MultipartFile> files);

@@ -71,6 +71,7 @@ public class User {
 
         if(this.status == null) this.status = UserStatus.ACTIVE;
         if(this.role == null) this.role = Role.USER;
+        if(this.avatarUrl == null) this.avatarUrl = "https://res.cloudinary.com/ty4mmnvd/image/upload/v1785929829/avatar-default_ziyif2.svg";
     }
 
     @PreUpdate

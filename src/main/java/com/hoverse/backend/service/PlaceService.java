@@ -20,4 +20,5 @@ public interface PlaceService {
     PlaceResponseDTO getPlaceDetail(Long placeId);
     Page<PlaceResponseDTO> getPlaceByConditions(PlaceFilterRequestDTO filterRequestDTO,Pageable pageable);
     PlaceResponseDTO updatePlace(Long placeId, String email, PlaceUpdateRequestDTO requestDTO, List<MultipartFile> files);
+    int updateViewCount(Long placeId);
 }

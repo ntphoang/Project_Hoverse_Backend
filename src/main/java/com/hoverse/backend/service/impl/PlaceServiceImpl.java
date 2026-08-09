@@ -168,4 +168,10 @@ public class PlaceServiceImpl implements PlaceService {
 
         return placeMapper.toResponseDTO(placeRepository.save(place));
     }
+
+    @Override
+    @Transactional
+    public int updateViewCount(Long placeId) {
+        return placeRepository.updateViewCount(placeId);
+    }
 }

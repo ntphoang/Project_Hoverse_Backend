@@ -72,4 +72,9 @@ public class PlaceController {
         if(responseDTO == null) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(responseDTO);
     }
+
+    @PatchMapping("/{placeId}/view")
+    public ResponseEntity<?> updateViewCount(@PathVariable Long placeId){
+        return ResponseEntity.ok(placeService.updateViewCount(placeId));
+    }
 }

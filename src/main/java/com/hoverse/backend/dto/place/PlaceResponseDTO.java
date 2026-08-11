@@ -1,6 +1,7 @@
 package com.hoverse.backend.dto.place;
 
 import com.hoverse.backend.dto.tag.TagResponseDTO;
+import com.hoverse.backend.enums.PlaceStatus;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -27,6 +28,7 @@ public class PlaceResponseDTO {
     private BigDecimal longitude;
     private String coverImageUrl;
     private LocalDateTime createdAt;
+    private PlaceStatus status;
 
     private BigDecimal avgRating;
     private Integer reviewCount;

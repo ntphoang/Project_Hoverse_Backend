@@ -1,10 +1,8 @@
 package com.hoverse.backend.service.impl;
 
 import com.hoverse.backend.dto.cloudinary.CloudinaryUploadResponseDTO;
-import com.hoverse.backend.dto.place.PlaceFilterRequestDTO;
-import com.hoverse.backend.dto.place.PlaceRequestDTO;
-import com.hoverse.backend.dto.place.PlaceResponseDTO;
-import com.hoverse.backend.dto.place.PlaceUpdateRequestDTO;
+import com.hoverse.backend.dto.place.*;
+import com.hoverse.backend.dto.placeFavorite.PlaceFavoriteResponseDTO;
 import com.hoverse.backend.entity.*;
 import com.hoverse.backend.enums.PlaceStatus;
 import com.hoverse.backend.exception.BadRequestException;
@@ -19,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -114,7 +113,7 @@ public class PlaceServiceImpl implements PlaceService {
         Specification<Place> specification =
                 Specification.where(PlaceSpecification.hasTitle(filterRequestDTO.getTitle()))
                         .and(PlaceSpecification.hasMinRating(filterRequestDTO.getMinRating()))
-                        .and(PlaceSpecification.hasStatus(PlaceStatus.APPROVED))
+                        .and(PlaceSpecification.hasStatus(filterRequestDTO.getStatus()))
                         .and(PlaceSpecification.hasCategory(filterRequestDTO.getCategoryId()))
                         .and(PlaceSpecification.hasAllTags(filterRequestDTO.getTags()));
 
@@ -173,5 +172,34 @@ public class PlaceServiceImpl implements PlaceService {
     @Transactional
     public int updateViewCount(Long placeId) {
         return placeRepository.updateViewCount(placeId);
+    }
+
+    @Override
+    public PlaceChangeStatusResponseDTO changeStatus(Long placeId, PlaceChangeStatusRequestDTO requestDTO) {
+        Place place = placeRepository.findById(placeId)
+                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy địa điểm với id: "+placeId));
+
+        if(place.getStatus().equals(requestDTO.getStatus())){
+            throw new BadRequestException("Địa điểm đang ở trạng thái "+requestDTO.getStatus());
+        }
+
+        if(requestDTO.getStatus().equals(PlaceStatus.REJECTED) && requestDTO.getRejectReason()==null){
+            throw  new BadRequestException("Vui lòng thêm lý do từ chối địa điểm!");
+        }
+
+        place.setStatus(requestDTO.getStatus());
+
+        if(requestDTO.getRejectReason()!=null){
+            place.setRejectionReason(requestDTO.getRejectReason());
+        }else {
+            place.setRejectionReason(null);
+        };
+
+        Place placeUpdated = placeRepository.save(place);
+        return PlaceChangeStatusResponseDTO.builder()
+                .placeId(placeUpdated.getId())
+                .status(placeUpdated.getStatus())
+                .rejectReason(placeUpdated.getRejectionReason())
+                .build();
     }
 }

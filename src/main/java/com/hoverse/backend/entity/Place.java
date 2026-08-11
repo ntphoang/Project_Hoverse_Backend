@@ -71,6 +71,9 @@ public class Place {
     @Column(nullable = false, length = 20)
     private PlaceStatus status;
 
+    @Column(name = "rejection_reason")
+    private String rejectionReason;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
@@ -107,7 +110,7 @@ public class Place {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
 
-        if(this.status == null) this.status = PlaceStatus.APPROVED;
+        if(this.status == null) this.status = PlaceStatus.PENDING;
         if(this.avgRating == null) this.avgRating = BigDecimal.ZERO;
         if(this.reviewCount == null) this.reviewCount = 0;
         if(this.viewCount == null) this.viewCount = 0;

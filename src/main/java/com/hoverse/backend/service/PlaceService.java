@@ -1,13 +1,12 @@
 package com.hoverse.backend.service;
 
-import com.hoverse.backend.dto.place.PlaceFilterRequestDTO;
-import com.hoverse.backend.dto.place.PlaceRequestDTO;
-import com.hoverse.backend.dto.place.PlaceResponseDTO;
-import com.hoverse.backend.dto.place.PlaceUpdateRequestDTO;
+import com.hoverse.backend.dto.place.*;
+import com.hoverse.backend.dto.placeFavorite.PlaceFavoriteResponseDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -21,4 +20,5 @@ public interface PlaceService {
     Page<PlaceResponseDTO> getPlaceByConditions(PlaceFilterRequestDTO filterRequestDTO,Pageable pageable);
     PlaceResponseDTO updatePlace(Long placeId, String email, PlaceUpdateRequestDTO requestDTO, List<MultipartFile> files);
     int updateViewCount(Long placeId);
+    PlaceChangeStatusResponseDTO changeStatus(Long placeId, PlaceChangeStatusRequestDTO requestDTO);
 }

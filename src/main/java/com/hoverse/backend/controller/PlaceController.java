@@ -1,9 +1,6 @@
 package com.hoverse.backend.controller;
 
-import com.hoverse.backend.dto.place.PlaceFilterRequestDTO;
-import com.hoverse.backend.dto.place.PlaceRequestDTO;
-import com.hoverse.backend.dto.place.PlaceResponseDTO;
-import com.hoverse.backend.dto.place.PlaceUpdateRequestDTO;
+import com.hoverse.backend.dto.place.*;
 import com.hoverse.backend.dto.placeFavorite.PlaceFavoriteResponseDTO;
 import com.hoverse.backend.service.PlaceFavoriteService;
 import com.hoverse.backend.service.PlaceService;
@@ -77,5 +74,11 @@ public class PlaceController {
     @PatchMapping("/{placeId}/view")
     public ResponseEntity<?> updateViewCount(@PathVariable Long placeId){
         return ResponseEntity.ok(placeService.updateViewCount(placeId));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{placeId}/status")
+    public ResponseEntity<?> changeStatus(@PathVariable Long placeId,@RequestBody @Valid PlaceChangeStatusRequestDTO requestDTO){
+        return ResponseEntity.ok(placeService.changeStatus(placeId ,requestDTO));
     }
 }

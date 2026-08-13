@@ -1,8 +1,8 @@
 package com.hoverse.backend.service;
 
-import com.hoverse.backend.dto.user.UserChangePasswordRequestDTO;
-import com.hoverse.backend.dto.user.UserProfileResponseDTO;
-import com.hoverse.backend.dto.user.UserUpdateProfileRequestDTO;
+import com.hoverse.backend.dto.user.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -15,4 +15,6 @@ public interface UserService {
     UserProfileResponseDTO updateUserProfile(String email, UserUpdateProfileRequestDTO requestDTO);
     UserProfileResponseDTO uploadAvatar(String email, MultipartFile file);
     UserProfileResponseDTO changePassword(String email, UserChangePasswordRequestDTO requestDTO);
+    UserProfileResponseDTO changeUserStatus(String email, Long userId, UserChangeStatusRequestDTO requestDTO);
+    Page<UserProfileResponseDTO> getUserByConditions(UserFilterRequestDTO requestDTO, Pageable pageable);
 }

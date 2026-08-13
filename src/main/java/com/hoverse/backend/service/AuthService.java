@@ -2,6 +2,8 @@ package com.hoverse.backend.service;
 
 import com.hoverse.backend.dto.user.AuthRequestDTO;
 import com.hoverse.backend.dto.user.AuthResponseDTO;
+import com.hoverse.backend.dto.user.AuthResultDTO;
+import jakarta.servlet.http.Cookie;
 
 /**
  * Project_Hoverse_Backend
@@ -10,7 +12,8 @@ import com.hoverse.backend.dto.user.AuthResponseDTO;
  */
 public interface AuthService {
     AuthResponseDTO register(AuthRequestDTO request);
-    AuthResponseDTO login(AuthRequestDTO request);
+    AuthResultDTO login(AuthRequestDTO request);
     void verifyEmail(String token);
     void resendVerify(String email);
+    AuthResponseDTO refreshToken(String refreshTokenString);
 }

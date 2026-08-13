@@ -42,6 +42,8 @@ public class User {
     @Column(nullable = false,length = 20)
     private UserStatus status;
 
+    private String reason;
+
     @Column(name = "avatar_url", length = 500)
     private String avatarUrl;
 
@@ -49,7 +51,7 @@ public class User {
     private String publicId;
 
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
@@ -63,9 +65,12 @@ public class User {
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private VerificationToken verificationToken;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<RefreshToken> refreshTokens;
+
     @PrePersist
     protected void onCreate(){
-        this.createAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
         this.isEmailVerified = false;
 

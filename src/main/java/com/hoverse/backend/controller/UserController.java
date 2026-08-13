@@ -1,12 +1,16 @@
 package com.hoverse.backend.controller;
 
 import com.hoverse.backend.dto.user.UserChangePasswordRequestDTO;
+import com.hoverse.backend.dto.user.UserChangeStatusRequestDTO;
+import com.hoverse.backend.dto.user.UserFilterRequestDTO;
 import com.hoverse.backend.dto.user.UserUpdateProfileRequestDTO;
 import com.hoverse.backend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,5 +49,18 @@ public class UserController {
     public ResponseEntity<?> changePassword(Principal principal, @Valid @RequestBody UserChangePasswordRequestDTO requestDTO){
         String email = principal.getName();
         return ResponseEntity.ok(userService.changePassword(email,requestDTO));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{userId}/status")
+    public ResponseEntity<?> changeUserStatus(Principal principal, @PathVariable Long userId, @Valid @RequestBody UserChangeStatusRequestDTO requestDTO){
+        String email = principal.getName();
+        return ResponseEntity.ok(userService.changeUserStatus(email, userId, requestDTO));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping
+    public ResponseEntity<?> getUserByConditions(@ModelAttribute UserFilterRequestDTO requestDTO, Pageable pageable){
+        return ResponseEntity.ok(userService.getUserByConditions(requestDTO, pageable));
     }
 }

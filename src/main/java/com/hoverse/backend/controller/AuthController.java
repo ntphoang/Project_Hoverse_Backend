@@ -5,7 +5,9 @@ import com.hoverse.backend.dto.user.AuthResponseDTO;
 import com.hoverse.backend.exception.BadRequestException;
 import com.hoverse.backend.exception.ResourceNotFoundException;
 import com.hoverse.backend.service.AuthService;
+import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +23,12 @@ import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
 public class AuthController {
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody AuthRequestDTO request){
+    public ResponseEntity<?> register(@RequestBody @Valid AuthRequestDTO request){
         try {
             AuthResponseDTO response = authService.register(request);
             return ResponseEntity.ok(response);

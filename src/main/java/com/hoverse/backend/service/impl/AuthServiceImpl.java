@@ -2,6 +2,7 @@ package com.hoverse.backend.service.impl;
 
 import com.hoverse.backend.dto.user.AuthRequestDTO;
 import com.hoverse.backend.dto.user.AuthResponseDTO;
+import com.hoverse.backend.entity.RefreshToken;
 import com.hoverse.backend.entity.User;
 import com.hoverse.backend.entity.VerificationToken;
 import com.hoverse.backend.enums.Role;
@@ -14,8 +15,10 @@ import com.hoverse.backend.repository.VerificationTokenRepository;
 import com.hoverse.backend.security.JwtUtils;
 import com.hoverse.backend.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.MailSendException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,7 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Random;
 import java.util.UUID;
+import java.util.random.RandomGenerator;
 
 /**
  * Project_Hoverse_Backend
@@ -44,7 +49,7 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponseDTO register(AuthRequestDTO request) {
         // Kiểm tra email có tồn tại hay chưa
         if(userRepository.findByEmail(request.getEmail()).isPresent()){
-            throw new RuntimeException("Email đã được sử dụng");
+            throw new BadRequestException("Email đã được sử dụng");
         }
 
         // Lưu user vào db
@@ -70,7 +75,12 @@ public class AuthServiceImpl implements AuthService {
         user.setVerificationToken(verificationToken);
         userRepository.save(user);
 
-        emailServiceImpl.sendVerificationEmail(email,emailToken);
+        try {
+            emailServiceImpl.sendVerificationEmail(email,emailToken);
+        } catch (MailSendException e) {
+            throw new BadRequestException("Email không tồn tại hoặc không sử dụng được. Vui lòng sử dụng email khac!");
+        }
+
         return AuthResponseDTO.builder()
                 .email(user.getEmail())
                 .role(user.getRole().name())
@@ -89,10 +99,18 @@ public class AuthServiceImpl implements AuthService {
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                Collections.emptyList()
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_"+ user.getRole().name()))
         );
 
         String jwtToken = jwtUtils.generateToken(userDetails);
+
+        String refreshTokenString = UUID.randomUUID().toString();
+        RefreshToken refreshToken = RefreshToken.builder()
+                .isActive(true)
+                .expiredAt(LocalDateTime.now().plusHours(24))
+                .token(refreshTokenString)
+                .user(user)
+                .build();
 
         return AuthResponseDTO.builder()
                 .id(user.getId())

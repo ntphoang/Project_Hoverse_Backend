@@ -1,5 +1,6 @@
 package com.hoverse.backend.dto.user;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -9,6 +10,9 @@ import lombok.Data;
  */
 @Data
 public class AuthRequestDTO {
+    @NotNull(message = "Vui lòng nhập email!")
     private String email;
+
+    @NotNull(message = "Vui lòng nhập mật khẩu")
     private String password;
 }

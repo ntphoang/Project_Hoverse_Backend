@@ -2,6 +2,7 @@ package com.hoverse.backend.service.impl;
 
 import com.hoverse.backend.dto.user.AuthRequestDTO;
 import com.hoverse.backend.dto.user.AuthResponseDTO;
+import com.hoverse.backend.dto.user.AuthResultDTO;
 import com.hoverse.backend.entity.RefreshToken;
 import com.hoverse.backend.entity.User;
 import com.hoverse.backend.entity.VerificationToken;
@@ -10,11 +11,14 @@ import com.hoverse.backend.enums.TokenType;
 import com.hoverse.backend.enums.UserStatus;
 import com.hoverse.backend.exception.BadRequestException;
 import com.hoverse.backend.exception.ResourceNotFoundException;
+import com.hoverse.backend.repository.RefreshTokenRepository;
 import com.hoverse.backend.repository.UserRepository;
 import com.hoverse.backend.repository.VerificationTokenRepository;
 import com.hoverse.backend.security.JwtUtils;
 import com.hoverse.backend.service.AuthService;
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailSendException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,11 +28,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Random;
+import java.util.Date;
+import java.util.Set;
 import java.util.UUID;
-import java.util.random.RandomGenerator;
 
 /**
  * Project_Hoverse_Backend
@@ -44,6 +50,10 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final EmailServiceImpl emailServiceImpl;
     private final VerificationTokenRepository verificationTokenRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+
+    @Value("${jwt.refresh.expiration}")
+    private int refreshExpiration;
 
     @Override
     public AuthResponseDTO register(AuthRequestDTO request) {
@@ -88,7 +98,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthResponseDTO login(AuthRequestDTO request) {
+    @Transactional
+    public AuthResultDTO login(AuthRequestDTO request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPassword())
         );
@@ -107,12 +118,13 @@ public class AuthServiceImpl implements AuthService {
         String refreshTokenString = UUID.randomUUID().toString();
         RefreshToken refreshToken = RefreshToken.builder()
                 .isActive(true)
-                .expiredAt(LocalDateTime.now().plusHours(24))
+                .expiredAt(LocalDateTime.now().plus(Duration.ofMillis(refreshExpiration)))
                 .token(refreshTokenString)
                 .user(user)
                 .build();
+        refreshTokenRepository.save(refreshToken);
 
-        return AuthResponseDTO.builder()
+        AuthResponseDTO responseDTO = AuthResponseDTO.builder()
                 .id(user.getId())
                 .token(jwtToken)
                 .email(user.getEmail())
@@ -120,6 +132,11 @@ public class AuthServiceImpl implements AuthService {
                 .fullName(user.getFullName())
                 .avatarUrl(user.getAvatarUrl())
                 .isEmailVerified(user.isEmailVerified())
+                .build();
+
+        return AuthResultDTO.builder()
+                .responseDTO(responseDTO)
+                .refreshToken(refreshTokenString)
                 .build();
     }
 
@@ -174,5 +191,35 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
 
         emailServiceImpl.sendVerificationEmail(user.getEmail(),emailToken);
+    }
+
+    @Override
+    public AuthResponseDTO refreshToken(String refreshTokenString) {
+       RefreshToken refreshTokenRepo = refreshTokenRepository.findRefreshTokenByToken(refreshTokenString);
+
+       if(refreshTokenRepo == null){
+           throw new BadRequestException("Token không hợp lệ hoặc đã bị đăng xuất!");
+       }
+
+       if(refreshTokenRepo.getExpiredAt().isBefore(LocalDateTime.now())){
+           refreshTokenRepository.delete(refreshTokenRepo);
+           throw new BadRequestException("Phiên đăng nhập hết hạn, vui lòng login lại!");
+       }
+
+       if(!refreshTokenRepo.getIsActive()){
+           throw new BadRequestException("Token đã bị thu hồi!");
+       }
+
+       User user = refreshTokenRepo.getUser();
+       UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+               user.getEmail(),
+               user.getPassword(),
+               Collections.singletonList(new SimpleGrantedAuthority("ROLE_"+user.getRole()))
+       );
+       String newToken = jwtUtils.generateToken(userDetails);
+
+       return AuthResponseDTO.builder()
+               .token(newToken)
+               .build();
     }
 }

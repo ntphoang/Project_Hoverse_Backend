@@ -2,18 +2,20 @@ package com.hoverse.backend.controller;
 
 import com.hoverse.backend.dto.user.AuthRequestDTO;
 import com.hoverse.backend.dto.user.AuthResponseDTO;
+import com.hoverse.backend.dto.user.AuthResultDTO;
 import com.hoverse.backend.exception.BadRequestException;
 import com.hoverse.backend.exception.ResourceNotFoundException;
 import com.hoverse.backend.service.AuthService;
+import jakarta.servlet.http.Cookie;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.Duration;
 
 /**
  * Project_Hoverse_Backend
@@ -40,8 +42,19 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequestDTO request){
         try {
-            AuthResponseDTO response = authService.login(request);
-            return ResponseEntity.ok(response);
+            AuthResultDTO resultDTO = authService.login(request);
+
+            ResponseCookie responseCookie = ResponseCookie
+                    .from("refreshToken", resultDTO.getRefreshToken())
+                    .httpOnly(true)
+                    .secure(true)
+                    .maxAge(Duration.ofDays(7))
+                    .path("/")
+                    .build();
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                    .body(resultDTO.getResponseDTO());
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Tài khoản hoặc mật khẩu không chính xác!");
         }
@@ -62,5 +75,10 @@ public class AuthController {
         String email = principal.getName();
         authService.resendVerify(email);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(@CookieValue(name = "refreshToken") String refreshTokenString){
+        return ResponseEntity.ok(authService.refreshToken(refreshTokenString));
     }
 }

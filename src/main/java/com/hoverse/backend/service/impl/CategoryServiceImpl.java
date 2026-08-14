@@ -3,7 +3,9 @@ package com.hoverse.backend.service.impl;
 import com.hoverse.backend.dto.category.CategoryCreateRequestDTO;
 import com.hoverse.backend.dto.category.CategoryResponseDTO;
 import com.hoverse.backend.entity.Category;
+import com.hoverse.backend.exception.BadRequestException;
 import com.hoverse.backend.exception.DataIntegrityViolationException;
+import com.hoverse.backend.exception.ResourceNotFoundException;
 import com.hoverse.backend.mapper.CategoryMapper;
 import com.hoverse.backend.repository.CategoryRepository;
 import com.hoverse.backend.service.CategoryService;
@@ -41,6 +43,17 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         Category categorySaved =  categoryRepository.save(categoryMapper.toEntity(requestDTO));
+        return categoryMapper.toResponseDTO(categorySaved);
+    }
+
+    @Override
+    public CategoryResponseDTO changeCategoryStatus(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(()->new ResourceNotFoundException("Không tim thấy category với id: "+categoryId));
+
+        category.setIsActive(!category.getIsActive());
+        Category categorySaved = categoryRepository.save(category);
+
         return categoryMapper.toResponseDTO(categorySaved);
     }
 }

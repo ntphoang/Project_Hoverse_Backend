@@ -31,4 +31,10 @@ public class CategoryController{
     public ResponseEntity<?> createCategory (@RequestBody @Valid CategoryCreateRequestDTO requestDTO){
         return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(requestDTO));
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{categoryId}/status")
+    public ResponseEntity<?> changeCategoryStatus (@PathVariable Long categoryId){
+        return ResponseEntity.ok(categoryService.changeCategoryStatus(categoryId));
+    }
 }

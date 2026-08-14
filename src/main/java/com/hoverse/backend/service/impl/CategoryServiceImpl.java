@@ -2,6 +2,7 @@ package com.hoverse.backend.service.impl;
 
 import com.hoverse.backend.dto.category.CategoryCreateRequestDTO;
 import com.hoverse.backend.dto.category.CategoryResponseDTO;
+import com.hoverse.backend.dto.category.CategoryUpdateRequestDTO;
 import com.hoverse.backend.entity.Category;
 import com.hoverse.backend.exception.BadRequestException;
 import com.hoverse.backend.exception.DataIntegrityViolationException;
@@ -56,4 +57,23 @@ public class CategoryServiceImpl implements CategoryService {
 
         return categoryMapper.toResponseDTO(categorySaved);
     }
+
+    @Override
+    public CategoryResponseDTO updateCategory(Long categoryId,CategoryUpdateRequestDTO requestDTO) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(()->new ResourceNotFoundException("Không tìm tháy category với id: "+categoryId));
+
+        if(categoryRepository.existsBySlugAndIdNot(requestDTO.getSlug(), categoryId)){
+            throw new DataIntegrityViolationException("slug đã tồn tại. Vui lòng chọn slug khác!");
+        }
+
+        category.setSlug(requestDTO.getSlug());
+        category.setName(requestDTO.getName());
+        category.setIconName(requestDTO.getIconName());
+
+        Category categorySaved = categoryRepository.save(category);
+        return categoryMapper.toResponseDTO(categorySaved);
+    }
+
+
 }

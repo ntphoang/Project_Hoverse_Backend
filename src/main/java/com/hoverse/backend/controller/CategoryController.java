@@ -1,6 +1,7 @@
 package com.hoverse.backend.controller;
 
 import com.hoverse.backend.dto.category.CategoryCreateRequestDTO;
+import com.hoverse.backend.dto.category.CategoryUpdateRequestDTO;
 import com.hoverse.backend.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,5 +37,11 @@ public class CategoryController{
     @PatchMapping("/{categoryId}/status")
     public ResponseEntity<?> changeCategoryStatus (@PathVariable Long categoryId){
         return ResponseEntity.ok(categoryService.changeCategoryStatus(categoryId));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{categoryId}")
+    public ResponseEntity<?> updateCategory(@PathVariable Long categoryId, @RequestBody @Valid CategoryUpdateRequestDTO requestDTO){
+        return ResponseEntity.ok(categoryService.updateCategory(categoryId,requestDTO));
     }
 }

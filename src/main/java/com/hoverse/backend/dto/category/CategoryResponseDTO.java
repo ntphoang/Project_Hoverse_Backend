@@ -18,5 +18,6 @@ public class CategoryResponseDTO {
     private Long id;
     private String name;
     private String iconName;
+    private String slug;
     private Boolean isActive;
 }

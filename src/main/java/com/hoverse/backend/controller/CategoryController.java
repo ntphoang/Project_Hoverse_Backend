@@ -1,12 +1,14 @@
 package com.hoverse.backend.controller;
 
+import com.hoverse.backend.dto.category.CategoryCreateRequestDTO;
 import com.hoverse.backend.service.CategoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Project_Hoverse_Backend
@@ -22,5 +24,11 @@ public class CategoryController{
     @GetMapping
     public ResponseEntity<?> getAllCategories(){
         return ResponseEntity.ok(categoryService.getAllCategories());
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping
+    public ResponseEntity<?> createCategory (@RequestBody @Valid CategoryCreateRequestDTO requestDTO){
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(requestDTO));
     }
 }

@@ -1,5 +1,6 @@
 package com.hoverse.backend.service;
 
+import com.hoverse.backend.dto.category.CategoryCreateRequestDTO;
 import com.hoverse.backend.dto.category.CategoryResponseDTO;
 
 import java.util.List;
@@ -11,4 +12,5 @@ import java.util.List;
  */
 public interface CategoryService {
     List<CategoryResponseDTO> getAllCategories();
+    CategoryResponseDTO createCategory(CategoryCreateRequestDTO requestDTO);
 }

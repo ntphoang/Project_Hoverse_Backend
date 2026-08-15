@@ -1,9 +1,11 @@
 package com.hoverse.backend.controller;
 
 import com.hoverse.backend.dto.category.CategoryCreateRequestDTO;
+import com.hoverse.backend.dto.category.CategoryFilterRequestDTO;
 import com.hoverse.backend.dto.category.CategoryUpdateRequestDTO;
 import com.hoverse.backend.service.CategoryService;
 import jakarta.validation.Valid;
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +25,8 @@ public class CategoryController{
     private final CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<?> getAllCategories(){
-        return ResponseEntity.ok(categoryService.getAllCategories());
+    public ResponseEntity<?> getCategoryByConditions(@ModelAttribute CategoryFilterRequestDTO requestDTO){
+        return ResponseEntity.ok(categoryService.getCategoryByConditions(requestDTO));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

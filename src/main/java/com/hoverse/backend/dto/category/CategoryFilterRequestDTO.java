@@ -8,16 +8,12 @@ import lombok.NoArgsConstructor;
 /**
  * Project_Hoverse_Backend
  * Author: Phi Hoàng
- * Date: 07/07/2026
+ * Date: 14/08/2026
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CategoryResponseDTO {
-    private Long id;
-    private String name;
-    private String iconName;
-    private String slug;
+public class CategoryFilterRequestDTO {
     private Boolean isActive;
 }

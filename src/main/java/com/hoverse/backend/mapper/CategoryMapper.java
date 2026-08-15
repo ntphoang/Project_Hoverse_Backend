@@ -1,5 +1,6 @@
 package com.hoverse.backend.mapper;
 
+import com.hoverse.backend.dto.category.CategoryCreateRequestDTO;
 import com.hoverse.backend.dto.category.CategoryResponseDTO;
 import com.hoverse.backend.entity.Category;
 import org.mapstruct.Mapper;
@@ -12,4 +13,5 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface CategoryMapper {
     CategoryResponseDTO toResponseDTO(Category category);
+    Category toEntity(CategoryCreateRequestDTO requestDTO);
 }

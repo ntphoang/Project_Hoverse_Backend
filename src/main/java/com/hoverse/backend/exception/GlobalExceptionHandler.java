@@ -55,4 +55,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponseDTO);
     }
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<?> handleDataIntegrityViolation(DataIntegrityViolationException ex){
+        String message = ex.getMessage();
+
+        ErrorResponseDTO errorResponseDTO = ErrorResponseDTO.builder()
+                .time(LocalDateTime.now())
+                .message(message)
+                .code("409")
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponseDTO);
+    }
+
 }

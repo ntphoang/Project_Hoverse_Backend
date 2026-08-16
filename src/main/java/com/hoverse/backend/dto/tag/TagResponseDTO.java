@@ -18,5 +18,5 @@ public class TagResponseDTO {
     private Long id;
     private String name;
     private String iconName;
-    private boolean isActive;
+    private Boolean isActive;
 }

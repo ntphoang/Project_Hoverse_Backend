@@ -1,5 +1,6 @@
 package com.hoverse.backend.service;
 
+import com.hoverse.backend.dto.tag.TagRequestDTO;
 import com.hoverse.backend.dto.tag.TagResponseDTO;
 
 import java.util.List;
@@ -10,5 +11,8 @@ import java.util.List;
  * Date: 13/07/2026
  */
 public interface TagService {
-    List<TagResponseDTO> getAllTags();
+    List<TagResponseDTO> getAllTags(Boolean isActive);
+    TagResponseDTO changeTagStatus(Long tagId);
+    TagResponseDTO createTag(TagRequestDTO requestDTO);
+    TagResponseDTO updateTag(TagRequestDTO requestDTO, Long tagId);
 }

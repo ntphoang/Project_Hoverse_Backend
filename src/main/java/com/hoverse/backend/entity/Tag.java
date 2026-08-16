@@ -29,9 +29,16 @@ public class Tag {
 
     @Column(name = "icon_name", nullable = false)
     private String iconName;
-    private boolean isActive;
+
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
     @ManyToMany(mappedBy = "tags")
     @JsonIgnore
     private Set<Place> places;
+
+    @PrePersist
+    protected void onCreate(){
+        if(this.isActive == null) this.isActive = true;
+    }
 }

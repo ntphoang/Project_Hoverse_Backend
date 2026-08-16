@@ -25,15 +25,15 @@ public class TagServiceImpl implements TagService {
     private final TagMapper tagMapper;
 
     @Override
-    public List<TagResponseDTO> getAllTags(Boolean activeOnly) {
-        if(activeOnly == null){
+    public List<TagResponseDTO> getAllTags(Boolean isActive) {
+        if(isActive == null){
             return tagRepository.findAll()
                     .stream()
                     .map(tagMapper::toResponseDTO)
                     .toList();
         }
 
-        return tagRepository.findAllByIsActive(activeOnly)
+        return tagRepository.findAllByIsActive(isActive)
                 .stream()
                 .map(tagMapper::toResponseDTO)
                 .toList();

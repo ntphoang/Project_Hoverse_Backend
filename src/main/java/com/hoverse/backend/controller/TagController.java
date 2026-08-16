@@ -20,8 +20,8 @@ public class TagController {
     private final TagService tagService;
 
     @GetMapping
-    public ResponseEntity<?> getAllTags(@RequestParam(required = false) Boolean activeOnly){
-        return ResponseEntity.ok(tagService.getAllTags(activeOnly));
+    public ResponseEntity<?> getAllTags(@RequestParam(required = false, value = "isActive") Boolean isActive){
+        return ResponseEntity.ok(tagService.getAllTags(isActive));
     }
 
     @PatchMapping("/{tagId}/status")

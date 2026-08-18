@@ -81,4 +81,9 @@ public class PlaceController {
     public ResponseEntity<?> changeStatus(@PathVariable Long placeId,@RequestBody @Valid PlaceChangeStatusRequestDTO requestDTO){
         return ResponseEntity.ok(placeService.changeStatus(placeId ,requestDTO));
     }
+
+    @GetMapping("/top-rating")
+    public ResponseEntity<?> getPlacesTopRating(@RequestParam(defaultValue = "1") Integer reviewCount){
+        return ResponseEntity.ok(placeService.getPlacesTopRating(reviewCount));
+    }
 }

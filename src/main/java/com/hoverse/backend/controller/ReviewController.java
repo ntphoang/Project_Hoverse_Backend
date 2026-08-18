@@ -30,7 +30,7 @@ public class ReviewController {
     @PostMapping(value = "/{id}/reviews",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createReview(
             @RequestPart(value = "review") @Valid ReviewRequestDTO requestDTO,
-            @RequestPart(value = "files") List<MultipartFile> files,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
             @PathVariable Long id,
             Principal principal
             ){

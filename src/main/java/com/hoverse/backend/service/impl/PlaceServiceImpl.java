@@ -5,6 +5,7 @@ import com.hoverse.backend.dto.place.*;
 import com.hoverse.backend.dto.placeFavorite.PlaceFavoriteResponseDTO;
 import com.hoverse.backend.entity.*;
 import com.hoverse.backend.enums.PlaceStatus;
+import com.hoverse.backend.enums.Role;
 import com.hoverse.backend.exception.BadRequestException;
 import com.hoverse.backend.exception.ResourceNotFoundException;
 import com.hoverse.backend.mapper.PlaceMapper;
@@ -132,7 +133,7 @@ public class PlaceServiceImpl implements PlaceService {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy địa điểm với id: "+placeId));
 
-        if(!place.getUser().getId().equals(user.getId())){
+        if(user.getRole() != Role.ADMIN && !place.getUser().getId().equals(user.getId())){
             throw new BadRequestException("User với email "+email+" không được phép chỉnh sửa địa điểm "+place.getTitle());
         }
 
@@ -196,10 +197,14 @@ public class PlaceServiceImpl implements PlaceService {
         };
 
         Place placeUpdated = placeRepository.save(place);
-        return PlaceChangeStatusResponseDTO.builder()
-                .placeId(placeUpdated.getId())
-                .status(placeUpdated.getStatus())
-                .rejectReason(placeUpdated.getRejectionReason())
-                .build();
+        return placeMapper.toChangeStatusResponseDTO(placeUpdated);
+    }
+
+    @Override
+    public List<PlaceTopRatingResponseDTO> getPlacesTopRating(Integer reviewCount) {
+        return placeRepository.findTop5ByReviewCountGreaterThanEqualAndStatusOrderByAvgRatingDescReviewCountDesc(reviewCount,PlaceStatus.APPROVED)
+                .stream()
+                .map(placeMapper::toTopRatingResponseDTO)
+                .toList();
     }
 }

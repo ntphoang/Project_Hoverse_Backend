@@ -95,7 +95,7 @@ public class Place {
     private Long version;
 
     @OneToMany(mappedBy = "place")
-    private Set<PlaceFavorite> placeFavories;
+    private Set<PlaceFavorite> placeFavorites;
 
     @ManyToMany()
     @JoinTable(

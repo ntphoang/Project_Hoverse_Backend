@@ -21,4 +21,5 @@ public interface PlaceService {
     PlaceResponseDTO updatePlace(Long placeId, String email, PlaceUpdateRequestDTO requestDTO, List<MultipartFile> files);
     int updateViewCount(Long placeId);
     PlaceChangeStatusResponseDTO changeStatus(Long placeId, PlaceChangeStatusRequestDTO requestDTO);
+    List<PlaceTopRatingResponseDTO> getPlacesTopRating(Integer reviewCountIsGreaterThan);
 }

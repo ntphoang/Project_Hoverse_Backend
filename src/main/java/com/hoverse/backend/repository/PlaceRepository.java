@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -23,4 +25,6 @@ public interface PlaceRepository extends JpaRepository<Place,Long>, JpaSpecifica
     @Modifying
     @Query("update Place p set p.viewCount = p.viewCount + 1 where p.id = :placeId")
     int updateViewCount(@Param(value = "placeId") Long placeId);
+
+    List<Place> findTop5ByReviewCountGreaterThanEqualAndStatusOrderByAvgRatingDescReviewCountDesc(Integer reviewCountIsGreaterThan, PlaceStatus status);
 }

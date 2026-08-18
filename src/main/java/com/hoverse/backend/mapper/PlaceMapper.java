@@ -1,7 +1,9 @@
 package com.hoverse.backend.mapper;
 
+import com.hoverse.backend.dto.place.PlaceChangeStatusResponseDTO;
 import com.hoverse.backend.dto.place.PlaceRequestDTO;
 import com.hoverse.backend.dto.place.PlaceResponseDTO;
+import com.hoverse.backend.dto.place.PlaceTopRatingResponseDTO;
 import com.hoverse.backend.entity.Place;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -23,4 +25,8 @@ public interface PlaceMapper {
 
     @Mapping(source = "categoryId",target = "category.id")
     Place toEntity(PlaceRequestDTO dto);
+
+    PlaceChangeStatusResponseDTO toChangeStatusResponseDTO(Place place);
+
+    PlaceTopRatingResponseDTO toTopRatingResponseDTO(Place place);
 }

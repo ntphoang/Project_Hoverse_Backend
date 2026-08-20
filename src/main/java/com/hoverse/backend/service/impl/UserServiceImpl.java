@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -142,5 +142,26 @@ public class UserServiceImpl implements UserService {
 
         Page<User> users = userRepository.findAll(specification, pageable);
         return users.map(userMapper::toResponseDTO);
+    }
+
+    @Override
+    public List<UserCountResponseDTO> countUsersGroupByMonth(int year) {
+        List<Object[]> repoList = userRepository.countUsersGroupByMonth(year);
+
+        Map<Integer, Long> countMap= new HashMap<>();
+        for (Object[] object : repoList) {
+            countMap.put((Integer) object[0],(Long) object[1]);
+        }
+
+        List<UserCountResponseDTO> responseDTOs = new ArrayList<>();
+        for(int i = 1; i <= 12; i++){
+            UserCountResponseDTO userCountResponseDTO = UserCountResponseDTO.builder()
+                    .month(i)
+                    .count(countMap.getOrDefault(i, 0L))
+                    .build();
+            responseDTOs.add(userCountResponseDTO);
+        }
+
+        return responseDTOs;
     }
 }

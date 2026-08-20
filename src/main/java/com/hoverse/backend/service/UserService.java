@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 /**
  * Project_Hoverse_Backend
  * Author: Phi Hoàng
@@ -17,4 +19,5 @@ public interface UserService {
     UserProfileResponseDTO changePassword(String email, UserChangePasswordRequestDTO requestDTO);
     UserProfileResponseDTO changeUserStatus(String email, Long userId, UserChangeStatusRequestDTO requestDTO);
     Page<UserProfileResponseDTO> getUserByConditions(UserFilterRequestDTO requestDTO, Pageable pageable);
+    List<UserCountResponseDTO> countUsersGroupByMonth(int year);
 }

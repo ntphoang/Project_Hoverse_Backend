@@ -23,10 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Project_TimKiemDiaDiemVuiChoi
@@ -53,7 +50,6 @@ public class PlaceServiceImpl implements PlaceService {
                 .build();
     }
 
-//    PHƯƠNG THỨC TẠO PLACE MỚI
     @Transactional
     @Override
     public PlaceResponseDTO createPlace(String email,PlaceRequestDTO requestDTO, List<MultipartFile> files) {
@@ -99,7 +95,6 @@ public class PlaceServiceImpl implements PlaceService {
 
     }
 
-//    PHƯƠNG THỨC LẤY DETAIL CỦA PLACE THEO PLACEID
     @Override
     public PlaceResponseDTO getPlaceDetail(Long placeId) {
         Place place = placeRepository.findByIdAndStatus(placeId, PlaceStatus.APPROVED)
@@ -108,7 +103,6 @@ public class PlaceServiceImpl implements PlaceService {
         return placeMapper.toResponseDTO(place);
     }
 
-//    PHƯƠNG THỨC LẤY TẤT CẢ PLACE THEO CONDITION
     @Override
     public Page<PlaceResponseDTO> getPlaceByConditions(PlaceFilterRequestDTO filterRequestDTO, Pageable pageable) {
         Specification<Place> specification =
@@ -206,5 +200,26 @@ public class PlaceServiceImpl implements PlaceService {
                 .stream()
                 .map(placeMapper::toTopRatingResponseDTO)
                 .toList();
+    }
+
+    @Override
+    public List<PlaceCountResponseDTO> countPlaceGroupByMonth(int year) {
+        List<Object[]> objects = placeRepository.countPlaceGroupByMonth(year);
+
+        Map<Integer, Long> map = new HashMap<>();
+        for(Object[] object : objects){
+            map.put((Integer) object[0],(Long) object[1]);
+        }
+
+        List<PlaceCountResponseDTO> responseDTOS = new ArrayList<>();
+        for (int i = 1; i <= 12 ; i++) {
+            PlaceCountResponseDTO responseDTO = PlaceCountResponseDTO.builder()
+                    .month(i)
+                    .count(map.getOrDefault(i, 0L))
+                    .build();
+            responseDTOS.add(responseDTO);
+        }
+
+        return responseDTOS;
     }
 }

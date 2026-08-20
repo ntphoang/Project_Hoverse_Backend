@@ -63,4 +63,10 @@ public class UserController {
     public ResponseEntity<?> getUserByConditions(@ModelAttribute UserFilterRequestDTO requestDTO, Pageable pageable){
         return ResponseEntity.ok(userService.getUserByConditions(requestDTO, pageable));
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/quantity")
+    public ResponseEntity<?> countUsersGroupByMonth(@RequestParam int year){
+        return ResponseEntity.ok(userService.countUsersGroupByMonth(year));
+    }
 }

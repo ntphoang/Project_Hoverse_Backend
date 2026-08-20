@@ -27,4 +27,7 @@ public interface PlaceRepository extends JpaRepository<Place,Long>, JpaSpecifica
     int updateViewCount(@Param(value = "placeId") Long placeId);
 
     List<Place> findTop5ByReviewCountGreaterThanEqualAndStatusOrderByAvgRatingDescReviewCountDesc(Integer reviewCountIsGreaterThan, PlaceStatus status);
+
+    @Query("select month(p.createdAt), count(p.id) from Place p where year(p.createdAt) = :year group by month(p.createdAt)")
+    List<Object[]> countPlaceGroupByMonth(@Param("year") int year);
 }

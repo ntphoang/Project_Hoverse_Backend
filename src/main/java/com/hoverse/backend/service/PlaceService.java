@@ -22,4 +22,5 @@ public interface PlaceService {
     int updateViewCount(Long placeId);
     PlaceChangeStatusResponseDTO changeStatus(Long placeId, PlaceChangeStatusRequestDTO requestDTO);
     List<PlaceTopRatingResponseDTO> getPlacesTopRating(Integer reviewCountIsGreaterThan);
+    List<PlaceCountResponseDTO> countPlaceGroupByMonth(int year);
 }

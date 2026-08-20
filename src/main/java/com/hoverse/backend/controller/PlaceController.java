@@ -86,4 +86,10 @@ public class PlaceController {
     public ResponseEntity<?> getPlacesTopRating(@RequestParam(defaultValue = "1") Integer reviewCount){
         return ResponseEntity.ok(placeService.getPlacesTopRating(reviewCount));
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/quantity")
+    public ResponseEntity<?> countPlaceGroupByMonth(@RequestParam int year){
+        return ResponseEntity.ok(placeService.countPlaceGroupByMonth(year));
+    }
 }

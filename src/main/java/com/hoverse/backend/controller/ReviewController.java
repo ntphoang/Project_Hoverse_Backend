@@ -1,5 +1,6 @@
 package com.hoverse.backend.controller;
 
+import com.hoverse.backend.dto.review.ReviewDeleteRequestDTO;
 import com.hoverse.backend.dto.review.ReviewRequestDTO;
 import com.hoverse.backend.dto.review.ReviewResponseDTO;
 import com.hoverse.backend.dto.review.ReviewUpdateRequestDTO;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -59,5 +61,12 @@ public class ReviewController {
     public ResponseEntity<?> deleteReview(Principal principal,@PathVariable Long reviewId){
         String email = principal.getName();
         return ResponseEntity.ok(reviewService.deleteReview(email,reviewId));
+    }
+
+    @PatchMapping("/admin/reviews/{reviewId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deleteReviewByAdmin(Principal principal,@RequestBody ReviewDeleteRequestDTO requestDTO,@PathVariable Long reviewId){
+        String email = principal.getName();
+        return ResponseEntity.ok(reviewService.deleteReviewByAdmin(email, requestDTO, reviewId));
     }
 }

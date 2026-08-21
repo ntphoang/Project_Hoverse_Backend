@@ -1,5 +1,6 @@
 package com.hoverse.backend.service;
 
+import com.hoverse.backend.dto.review.ReviewDeleteRequestDTO;
 import com.hoverse.backend.dto.review.ReviewRequestDTO;
 import com.hoverse.backend.dto.review.ReviewResponseDTO;
 import com.hoverse.backend.dto.review.ReviewUpdateRequestDTO;
@@ -19,4 +20,5 @@ public interface ReviewService {
     Page<ReviewResponseDTO> findReviewsByPlaceId(Long placeId, Pageable pageable);
     ReviewResponseDTO updateReview(String email,Long reviewId ,ReviewUpdateRequestDTO requestDTO, List<MultipartFile> files);
     boolean deleteReview(String email, Long reviewId);
+    ReviewResponseDTO deleteReviewByAdmin(String email, ReviewDeleteRequestDTO requestDTO, Long reviewId);
 }

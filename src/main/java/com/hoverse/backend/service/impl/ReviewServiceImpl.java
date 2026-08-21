@@ -1,6 +1,7 @@
 package com.hoverse.backend.service.impl;
 
 import com.hoverse.backend.dto.cloudinary.CloudinaryUploadResponseDTO;
+import com.hoverse.backend.dto.review.ReviewDeleteRequestDTO;
 import com.hoverse.backend.dto.review.ReviewRequestDTO;
 import com.hoverse.backend.dto.review.ReviewResponseDTO;
 import com.hoverse.backend.dto.review.ReviewUpdateRequestDTO;
@@ -10,6 +11,7 @@ import com.hoverse.backend.entity.ReviewMedia;
 import com.hoverse.backend.entity.User;
 import com.hoverse.backend.enums.PlaceStatus;
 import com.hoverse.backend.enums.ReviewStatus;
+import com.hoverse.backend.enums.Role;
 import com.hoverse.backend.enums.UserStatus;
 import com.hoverse.backend.exception.BadRequestException;
 import com.hoverse.backend.exception.ResourceNotFoundException;
@@ -66,8 +68,8 @@ public class ReviewServiceImpl implements ReviewService {
             throw new AccessDeniedException("Vui lòng xác thực email để thực hiện chức năng này!");
         }
 
-        Optional<Review> reviewRepo = reviewRepository.findReviewByUserIdAndPlaceId(userRepo.getId(),placeRepo.getId());
-        if(reviewRepo.isPresent()){
+        boolean isExisted = reviewRepository.existsByUserIdAndPlaceIdAndDeletedAtIsNull(userRepo.getId(), placeRepo.getId());
+        if(isExisted){
             throw new BadRequestException("User với email: "+userRepo.getEmail()+" - đã đánh giá địa điểm: "+placeRepo.getTitle());
         }
 
@@ -193,5 +195,40 @@ public class ReviewServiceImpl implements ReviewService {
 
         reviewRepository.save(review);
         return true;
+    }
+
+    @Override
+    @Transactional
+    public ReviewResponseDTO deleteReviewByAdmin(String email, ReviewDeleteRequestDTO requestDTO, Long reviewId) {
+        User user = userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)
+                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy user với email: "+email+" hoặc tài khoản đã bị khóa!"));
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy bài đánh giá này!"));
+        Place place = placeRepository.findById(review.getPlace().getId())
+                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy địa điểm với id: "+review.getPlace().getId()));
+
+        // Check quyền
+        if(user.getRole() != Role.ADMIN) {
+            throw new BadRequestException("User hiện tại không được phép xóa bài đánh giá này!");
+        }
+
+        review.setDeletedAt(LocalDateTime.now());
+        review.setStatus(ReviewStatus.HIDDEN);
+        review.setRejectReason(requestDTO.getRejectReason());
+
+        // Cập nhật place
+        int newReviewCount = place.getReviewCount() - 1;
+        if(newReviewCount == 0){
+            place.setAvgRating(BigDecimal.ZERO);
+        }else{
+            double newAvgRating = ((place.getAvgRating().doubleValue() * place.getReviewCount()) - review.getRating())
+                    /newReviewCount;
+            place.setAvgRating(BigDecimal.valueOf(newAvgRating));
+        }
+        place.setReviewCount(newReviewCount);
+
+
+        Review reviewSaved = reviewRepository.save(review);
+        return reviewMapper.toResponseDTO(reviewSaved);
     }
 }

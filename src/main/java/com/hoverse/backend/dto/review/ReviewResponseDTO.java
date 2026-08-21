@@ -24,6 +24,8 @@ public class ReviewResponseDTO {
     private Integer likeCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
+    private String rejectReason;
 
     private Long authorId;
     private String authorFullname;

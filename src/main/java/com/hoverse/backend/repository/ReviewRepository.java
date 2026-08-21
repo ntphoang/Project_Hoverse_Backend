@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
@@ -15,6 +16,7 @@ import java.util.Optional;
  */
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-    Optional<Review> findReviewByUserIdAndPlaceId(Long userId, Long placeId);
     Page<Review> findReviewsByPlaceIdAndDeletedAtIsNull(Long placeId, Pageable pageable);
+
+    boolean existsByUserIdAndPlaceIdAndDeletedAtIsNull(Long userId, Long placeId);
 }

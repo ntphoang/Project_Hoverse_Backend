@@ -23,9 +23,6 @@ import java.util.List;
 @Entity
 @Table(
         name = "reviews",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_user_place_review",columnNames = {"user_id","place_id"})
-        },
         indexes = {
                 @Index(name = "idx_review_place",columnList = "place_id"),
                 @Index(name = "idx_review_user", columnList = "user_id")
@@ -68,6 +65,9 @@ public class Review {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    @Column(name = "reject_reason")
+    private String rejectReason;
 
     @OneToMany(mappedBy = "review",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewMedia> reviewMediaList;

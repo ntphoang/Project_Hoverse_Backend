@@ -1,10 +1,7 @@
 package com.hoverse.backend.service.impl;
 
 import com.hoverse.backend.dto.cloudinary.CloudinaryUploadResponseDTO;
-import com.hoverse.backend.dto.review.ReviewDeleteRequestDTO;
-import com.hoverse.backend.dto.review.ReviewRequestDTO;
-import com.hoverse.backend.dto.review.ReviewResponseDTO;
-import com.hoverse.backend.dto.review.ReviewUpdateRequestDTO;
+import com.hoverse.backend.dto.review.*;
 import com.hoverse.backend.entity.Place;
 import com.hoverse.backend.entity.Review;
 import com.hoverse.backend.entity.ReviewMedia;
@@ -21,12 +18,14 @@ import com.hoverse.backend.repository.PlaceRepository;
 import com.hoverse.backend.repository.ReviewMediaRepository;
 import com.hoverse.backend.repository.ReviewRepository;
 import com.hoverse.backend.repository.UserRepository;
+import com.hoverse.backend.repository.specification.ReviewSpecification;
 import com.hoverse.backend.service.CloudinaryService;
 import com.hoverse.backend.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.resilience.annotation.Retryable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -110,6 +109,18 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional(readOnly = true)
     public Page<ReviewResponseDTO> findReviewsByPlaceId(Long placeId, Pageable pageable) {
         Page<Review> reviews = reviewRepository.findReviewsByPlaceIdAndDeletedAtIsNull(placeId,pageable);
+        return reviews.map(reviewMapper::toResponseDTO);
+    }
+
+    @Override
+    public Page<ReviewResponseDTO> getReviewsByConditions(ReviewFilterRequestDTO requestDTO, Pageable pageable) {
+        Specification<Review> specification = Specification
+                .where(ReviewSpecification.hasYear(requestDTO.getYear()))
+                .and(ReviewSpecification.hasMonth(requestDTO.getMonth()))
+                .and(ReviewSpecification.hasStatus(requestDTO.getStatus()))
+                .and(ReviewSpecification.hasRating(requestDTO.getRating()));
+
+        Page<Review> reviews = reviewRepository.findAll(specification, pageable);
         return reviews.map(reviewMapper::toResponseDTO);
     }
 

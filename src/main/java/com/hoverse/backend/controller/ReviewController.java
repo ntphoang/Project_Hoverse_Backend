@@ -1,9 +1,6 @@
 package com.hoverse.backend.controller;
 
-import com.hoverse.backend.dto.review.ReviewDeleteRequestDTO;
-import com.hoverse.backend.dto.review.ReviewRequestDTO;
-import com.hoverse.backend.dto.review.ReviewResponseDTO;
-import com.hoverse.backend.dto.review.ReviewUpdateRequestDTO;
+import com.hoverse.backend.dto.review.*;
 import com.hoverse.backend.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -68,5 +65,11 @@ public class ReviewController {
     public ResponseEntity<?> deleteReviewByAdmin(Principal principal,@RequestBody ReviewDeleteRequestDTO requestDTO,@PathVariable Long reviewId){
         String email = principal.getName();
         return ResponseEntity.ok(reviewService.deleteReviewByAdmin(email, requestDTO, reviewId));
+    }
+
+    @GetMapping("/admin/reviews")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getReviewsByConditions(@ModelAttribute ReviewFilterRequestDTO requestDTO, Pageable pageable){
+        return ResponseEntity.ok(reviewService.getReviewsByConditions(requestDTO, pageable));
     }
 }

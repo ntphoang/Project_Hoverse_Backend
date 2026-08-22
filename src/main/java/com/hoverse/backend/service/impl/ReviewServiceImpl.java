@@ -55,6 +55,34 @@ public class ReviewServiceImpl implements ReviewService {
     private final CloudinaryMapper cloudinaryMapper;
     private final ReviewMediaRepository reviewMediaRepository;
 
+    private void handleHideReview(Review review){
+        Place place = placeRepository.findById(review.getPlace().getId())
+                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy địa điểm với id: "+review.getPlace().getId()));
+        int newReviewCount = place.getReviewCount() - 1;
+        if(newReviewCount == 0){
+            place.setAvgRating(BigDecimal.ZERO);
+        }else{
+            double newAvgRating = ((place.getAvgRating().doubleValue() * place.getReviewCount()) - review.getRating())
+                    /newReviewCount;
+            place.setAvgRating(BigDecimal.valueOf(newAvgRating));
+        }
+        place.setReviewCount(newReviewCount);
+    }
+
+    private void handleVisibleReview(Review review){
+        Place place = placeRepository.findById(review.getPlace().getId())
+                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy địa điểm với id: "+review.getPlace().getId()));
+        int newReviewCount = place.getReviewCount() + 1;
+        if(newReviewCount == 0){
+            place.setAvgRating(BigDecimal.ZERO);
+        }else{
+            double newAvgRating = ((place.getAvgRating().doubleValue() * place.getReviewCount()) + review.getRating())
+                    /newReviewCount;
+            place.setAvgRating(BigDecimal.valueOf(newAvgRating));
+        }
+        place.setReviewCount(newReviewCount);
+    }
+
     @Override
     @Transactional
     @Retryable(value = OptimisticLockingFailureException.class)
@@ -96,11 +124,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         Review reviewSaved = reviewRepository.save(reviewNew);
 
-        double newAvg = ((placeRepo.getAvgRating().doubleValue() * placeRepo.getReviewCount()) + reviewRequestDTO.getRating())/
-                (placeRepo.getReviewCount() + 1);
-        placeRepo.setAvgRating(BigDecimal.valueOf(newAvg).setScale(1, RoundingMode.HALF_UP));
-        placeRepo.setReviewCount(placeRepo.getReviewCount()+1);
-        placeRepository.save(placeRepo);
+        handleVisibleReview(reviewSaved);
 
         return reviewMapper.toResponseDTO(reviewSaved);
     }
@@ -176,6 +200,33 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
+    public ReviewResponseDTO changeReviewStatus(Long reviewId, ReviewChangeStatusRequestDTO requestDTO) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy review với id: "+reviewId));
+
+        if(review.getStatus() == requestDTO.getStatus()){
+            throw new BadRequestException("Bài đánh giá đã ở trạng thái "+requestDTO.getStatus());
+        }
+        review.setStatus(requestDTO.getStatus());
+
+        if(requestDTO.getReason() == null || requestDTO.getReason().isEmpty()){
+            throw new BadRequestException("Vui lòng thêm lý do để thay đổi trạng thái của review!");
+        }
+        review.setReason(requestDTO.getReason());
+
+        if(requestDTO.getStatus() == ReviewStatus.HIDDEN){
+            handleHideReview(review);
+            review.setDeletedAt(LocalDateTime.now());
+        } else if (requestDTO.getStatus() == ReviewStatus.VISIBLE) {
+            handleVisibleReview(review);
+            review.setDeletedAt(null);
+        }
+
+        return reviewMapper.toResponseDTO(reviewRepository.save(review));
+    }
+
+    @Override
+    @Transactional
     public boolean deleteReview(String email, Long reviewId) {
         User user = userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy user với email: "+email+" hoặc tài khoản đã bị khóa!"));
@@ -192,54 +243,9 @@ public class ReviewServiceImpl implements ReviewService {
         review.setDeletedAt(LocalDateTime.now());
         review.setStatus(ReviewStatus.HIDDEN);
 
-        // Cập nhật place
-        int newReviewCount = place.getReviewCount() - 1;
-        if(newReviewCount == 0){
-            place.setAvgRating(BigDecimal.ZERO);
-        }else{
-            double newAvgRating = ((place.getAvgRating().doubleValue() * place.getReviewCount()) - review.getRating())
-                    /newReviewCount;
-            place.setAvgRating(BigDecimal.valueOf(newAvgRating));
-        }
-        place.setReviewCount(newReviewCount);
-
+        handleHideReview(review);
 
         reviewRepository.save(review);
         return true;
-    }
-
-    @Override
-    @Transactional
-    public ReviewResponseDTO deleteReviewByAdmin(String email, ReviewDeleteRequestDTO requestDTO, Long reviewId) {
-        User user = userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)
-                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy user với email: "+email+" hoặc tài khoản đã bị khóa!"));
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy bài đánh giá này!"));
-        Place place = placeRepository.findById(review.getPlace().getId())
-                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy địa điểm với id: "+review.getPlace().getId()));
-
-        // Check quyền
-        if(user.getRole() != Role.ADMIN) {
-            throw new BadRequestException("User hiện tại không được phép xóa bài đánh giá này!");
-        }
-
-        review.setDeletedAt(LocalDateTime.now());
-        review.setStatus(ReviewStatus.HIDDEN);
-        review.setRejectReason(requestDTO.getRejectReason());
-
-        // Cập nhật place
-        int newReviewCount = place.getReviewCount() - 1;
-        if(newReviewCount == 0){
-            place.setAvgRating(BigDecimal.ZERO);
-        }else{
-            double newAvgRating = ((place.getAvgRating().doubleValue() * place.getReviewCount()) - review.getRating())
-                    /newReviewCount;
-            place.setAvgRating(BigDecimal.valueOf(newAvgRating));
-        }
-        place.setReviewCount(newReviewCount);
-
-
-        Review reviewSaved = reviewRepository.save(review);
-        return reviewMapper.toResponseDTO(reviewSaved);
     }
 }

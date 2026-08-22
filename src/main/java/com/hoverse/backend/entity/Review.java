@@ -66,8 +66,8 @@ public class Review {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @Column(name = "reject_reason")
-    private String rejectReason;
+    @Column(name = "reason")
+    private String reason;
 
     @OneToMany(mappedBy = "review",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewMedia> reviewMediaList;

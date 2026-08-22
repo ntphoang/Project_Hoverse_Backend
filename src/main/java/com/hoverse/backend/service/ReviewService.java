@@ -19,7 +19,7 @@ public interface ReviewService {
     Page<ReviewResponseDTO> getReviewsByConditions(ReviewFilterRequestDTO requestDTO, Pageable pageable);
 
     ReviewResponseDTO updateReview(String email,Long reviewId ,ReviewUpdateRequestDTO requestDTO, List<MultipartFile> files);
+    ReviewResponseDTO changeReviewStatus(Long reviewId, ReviewChangeStatusRequestDTO requestDTO);
 
     boolean deleteReview(String email, Long reviewId);
-    ReviewResponseDTO deleteReviewByAdmin(String email, ReviewDeleteRequestDTO requestDTO, Long reviewId);
 }

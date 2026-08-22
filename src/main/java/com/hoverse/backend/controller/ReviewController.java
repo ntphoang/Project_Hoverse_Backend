@@ -60,16 +60,15 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.deleteReview(email,reviewId));
     }
 
-    @PatchMapping("/admin/reviews/{reviewId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> deleteReviewByAdmin(Principal principal,@RequestBody ReviewDeleteRequestDTO requestDTO,@PathVariable Long reviewId){
-        String email = principal.getName();
-        return ResponseEntity.ok(reviewService.deleteReviewByAdmin(email, requestDTO, reviewId));
-    }
-
     @GetMapping("/admin/reviews")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getReviewsByConditions(@ModelAttribute ReviewFilterRequestDTO requestDTO, Pageable pageable){
         return ResponseEntity.ok(reviewService.getReviewsByConditions(requestDTO, pageable));
+    }
+
+    @PatchMapping("/admin/reviews/{reviewId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> changeReviewStatus(@PathVariable Long reviewId, @RequestBody @Valid ReviewChangeStatusRequestDTO requestDTO){
+        return ResponseEntity.ok(reviewService.changeReviewStatus(reviewId, requestDTO));
     }
 }

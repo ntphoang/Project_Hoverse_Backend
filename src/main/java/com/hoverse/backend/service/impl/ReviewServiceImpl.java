@@ -1,15 +1,14 @@
 package com.hoverse.backend.service.impl;
 
 import com.hoverse.backend.dto.cloudinary.CloudinaryUploadResponseDTO;
-import com.hoverse.backend.dto.review.ReviewRequestDTO;
-import com.hoverse.backend.dto.review.ReviewResponseDTO;
-import com.hoverse.backend.dto.review.ReviewUpdateRequestDTO;
+import com.hoverse.backend.dto.review.*;
 import com.hoverse.backend.entity.Place;
 import com.hoverse.backend.entity.Review;
 import com.hoverse.backend.entity.ReviewMedia;
 import com.hoverse.backend.entity.User;
 import com.hoverse.backend.enums.PlaceStatus;
 import com.hoverse.backend.enums.ReviewStatus;
+import com.hoverse.backend.enums.Role;
 import com.hoverse.backend.enums.UserStatus;
 import com.hoverse.backend.exception.BadRequestException;
 import com.hoverse.backend.exception.ResourceNotFoundException;
@@ -19,12 +18,14 @@ import com.hoverse.backend.repository.PlaceRepository;
 import com.hoverse.backend.repository.ReviewMediaRepository;
 import com.hoverse.backend.repository.ReviewRepository;
 import com.hoverse.backend.repository.UserRepository;
+import com.hoverse.backend.repository.specification.ReviewSpecification;
 import com.hoverse.backend.service.CloudinaryService;
 import com.hoverse.backend.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.resilience.annotation.Retryable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,34 @@ public class ReviewServiceImpl implements ReviewService {
     private final CloudinaryMapper cloudinaryMapper;
     private final ReviewMediaRepository reviewMediaRepository;
 
+    private void handleHideReview(Review review){
+        Place place = placeRepository.findById(review.getPlace().getId())
+                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy địa điểm với id: "+review.getPlace().getId()));
+        int newReviewCount = place.getReviewCount() - 1;
+        if(newReviewCount == 0){
+            place.setAvgRating(BigDecimal.ZERO);
+        }else{
+            double newAvgRating = ((place.getAvgRating().doubleValue() * place.getReviewCount()) - review.getRating())
+                    /newReviewCount;
+            place.setAvgRating(BigDecimal.valueOf(newAvgRating));
+        }
+        place.setReviewCount(newReviewCount);
+    }
+
+    private void handleVisibleReview(Review review){
+        Place place = placeRepository.findById(review.getPlace().getId())
+                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy địa điểm với id: "+review.getPlace().getId()));
+        int newReviewCount = place.getReviewCount() + 1;
+        if(newReviewCount == 0){
+            place.setAvgRating(BigDecimal.ZERO);
+        }else{
+            double newAvgRating = ((place.getAvgRating().doubleValue() * place.getReviewCount()) + review.getRating())
+                    /newReviewCount;
+            place.setAvgRating(BigDecimal.valueOf(newAvgRating));
+        }
+        place.setReviewCount(newReviewCount);
+    }
+
     @Override
     @Transactional
     @Retryable(value = OptimisticLockingFailureException.class)
@@ -66,8 +95,8 @@ public class ReviewServiceImpl implements ReviewService {
             throw new AccessDeniedException("Vui lòng xác thực email để thực hiện chức năng này!");
         }
 
-        Optional<Review> reviewRepo = reviewRepository.findReviewByUserIdAndPlaceId(userRepo.getId(),placeRepo.getId());
-        if(reviewRepo.isPresent()){
+        boolean isExisted = reviewRepository.existsByUserIdAndPlaceIdAndDeletedAtIsNull(userRepo.getId(), placeRepo.getId());
+        if(isExisted){
             throw new BadRequestException("User với email: "+userRepo.getEmail()+" - đã đánh giá địa điểm: "+placeRepo.getTitle());
         }
 
@@ -95,11 +124,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         Review reviewSaved = reviewRepository.save(reviewNew);
 
-        double newAvg = ((placeRepo.getAvgRating().doubleValue() * placeRepo.getReviewCount()) + reviewRequestDTO.getRating())/
-                (placeRepo.getReviewCount() + 1);
-        placeRepo.setAvgRating(BigDecimal.valueOf(newAvg).setScale(1, RoundingMode.HALF_UP));
-        placeRepo.setReviewCount(placeRepo.getReviewCount()+1);
-        placeRepository.save(placeRepo);
+        handleVisibleReview(reviewSaved);
 
         return reviewMapper.toResponseDTO(reviewSaved);
     }
@@ -108,6 +133,18 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional(readOnly = true)
     public Page<ReviewResponseDTO> findReviewsByPlaceId(Long placeId, Pageable pageable) {
         Page<Review> reviews = reviewRepository.findReviewsByPlaceIdAndDeletedAtIsNull(placeId,pageable);
+        return reviews.map(reviewMapper::toResponseDTO);
+    }
+
+    @Override
+    public Page<ReviewResponseDTO> getReviewsByConditions(ReviewFilterRequestDTO requestDTO, Pageable pageable) {
+        Specification<Review> specification = Specification
+                .where(ReviewSpecification.hasYear(requestDTO.getYear()))
+                .and(ReviewSpecification.hasMonth(requestDTO.getMonth()))
+                .and(ReviewSpecification.hasStatus(requestDTO.getStatus()))
+                .and(ReviewSpecification.hasRating(requestDTO.getRating()));
+
+        Page<Review> reviews = reviewRepository.findAll(specification, pageable);
         return reviews.map(reviewMapper::toResponseDTO);
     }
 
@@ -163,6 +200,33 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
+    public ReviewResponseDTO changeReviewStatus(Long reviewId, ReviewChangeStatusRequestDTO requestDTO) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy review với id: "+reviewId));
+
+        if(review.getStatus() == requestDTO.getStatus()){
+            throw new BadRequestException("Bài đánh giá đã ở trạng thái "+requestDTO.getStatus());
+        }
+        review.setStatus(requestDTO.getStatus());
+
+        if(requestDTO.getReason() == null || requestDTO.getReason().isEmpty()){
+            throw new BadRequestException("Vui lòng thêm lý do để thay đổi trạng thái của review!");
+        }
+        review.setReason(requestDTO.getReason());
+
+        if(requestDTO.getStatus() == ReviewStatus.HIDDEN){
+            handleHideReview(review);
+            review.setDeletedAt(LocalDateTime.now());
+        } else if (requestDTO.getStatus() == ReviewStatus.VISIBLE) {
+            handleVisibleReview(review);
+            review.setDeletedAt(null);
+        }
+
+        return reviewMapper.toResponseDTO(reviewRepository.save(review));
+    }
+
+    @Override
+    @Transactional
     public boolean deleteReview(String email, Long reviewId) {
         User user = userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy user với email: "+email+" hoặc tài khoản đã bị khóa!"));
@@ -179,17 +243,7 @@ public class ReviewServiceImpl implements ReviewService {
         review.setDeletedAt(LocalDateTime.now());
         review.setStatus(ReviewStatus.HIDDEN);
 
-        // Cập nhật place
-        int newReviewCount = place.getReviewCount() - 1;
-        if(newReviewCount == 0){
-            place.setAvgRating(BigDecimal.ZERO);
-        }else{
-            double newAvgRating = ((place.getAvgRating().doubleValue() * place.getReviewCount()) - review.getRating())
-                    /newReviewCount;
-            place.setAvgRating(BigDecimal.valueOf(newAvgRating));
-        }
-        place.setReviewCount(newReviewCount);
-
+        handleHideReview(review);
 
         reviewRepository.save(review);
         return true;

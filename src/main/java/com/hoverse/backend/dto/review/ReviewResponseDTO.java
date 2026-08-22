@@ -1,5 +1,6 @@
 package com.hoverse.backend.dto.review;
 
+import com.hoverse.backend.enums.ReviewStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +25,9 @@ public class ReviewResponseDTO {
     private Integer likeCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
+    private String reason;
+    private ReviewStatus status;
 
     private Long authorId;
     private String authorFullname;

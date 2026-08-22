@@ -1,8 +1,6 @@
 package com.hoverse.backend.controller;
 
-import com.hoverse.backend.dto.review.ReviewRequestDTO;
-import com.hoverse.backend.dto.review.ReviewResponseDTO;
-import com.hoverse.backend.dto.review.ReviewUpdateRequestDTO;
+import com.hoverse.backend.dto.review.*;
 import com.hoverse.backend.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -59,5 +58,17 @@ public class ReviewController {
     public ResponseEntity<?> deleteReview(Principal principal,@PathVariable Long reviewId){
         String email = principal.getName();
         return ResponseEntity.ok(reviewService.deleteReview(email,reviewId));
+    }
+
+    @GetMapping("/admin/reviews")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getReviewsByConditions(@ModelAttribute ReviewFilterRequestDTO requestDTO, Pageable pageable){
+        return ResponseEntity.ok(reviewService.getReviewsByConditions(requestDTO, pageable));
+    }
+
+    @PatchMapping("/admin/reviews/{reviewId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> changeReviewStatus(@PathVariable Long reviewId, @RequestBody @Valid ReviewChangeStatusRequestDTO requestDTO){
+        return ResponseEntity.ok(reviewService.changeReviewStatus(reviewId, requestDTO));
     }
 }

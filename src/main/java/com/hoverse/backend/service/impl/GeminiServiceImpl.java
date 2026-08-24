@@ -1,10 +1,7 @@
 package com.hoverse.backend.service.impl;
 
 import com.hoverse.backend.config.GeminiConfig;
-import com.hoverse.backend.dto.gemini.GeminiRequestDTO;
-import com.hoverse.backend.dto.gemini.GeminiResponseDTO;
-import com.hoverse.backend.dto.gemini.GeminiSearchConditionResponseDTO;
-import com.hoverse.backend.dto.gemini.PlaceContextRequestDTO;
+import com.hoverse.backend.dto.gemini.*;
 import com.hoverse.backend.entity.Place;
 import com.hoverse.backend.repository.PlaceRepository;
 import com.hoverse.backend.repository.specification.AIPlaceSpecification;
@@ -17,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
@@ -36,7 +34,7 @@ public class GeminiServiceImpl implements GeminiService {
     private final RestClient restClient = RestClient.create();
     private final ObjectMapper objectMapper;
 
-    public static final String PROMPT = "Bạn là một hệ thống trích xuất dữ liệu (Data Extractor) phục vụ cho một API.\n" +
+    public static final String PROMPT_CALL_1 = "Bạn là một hệ thống trích xuất dữ liệu (Data Extractor) phục vụ cho một API.\n" +
             "Nhiệm vụ của bạn là đọc câu nói của người dùng và trích xuất thông tin thành định dạng JSON chính xác.\n" +
             "\n" +
             "LUẬT BẮT BUỘC (NẾU VI PHẠM HỆ THỐNG SẼ BỊ LỖI):\n" +
@@ -52,6 +50,21 @@ public class GeminiServiceImpl implements GeminiService {
             "}\n" +
             "\n" +
             "Câu của người dùng: \"%s\"";
+
+    public static final String PROMPT_CALL_2 = "Bạn là một chuyên gia tư vấn địa điểm. " +
+            "Người dùng yêu cầu: \"%s\".\n" +
+            "Dưới đây là danh sách tối đa 15 địa điểm tiềm năng (định dạng JSON):\n%s\n\n" +
+            "LUẬT BẮT BUỘC:\n" +
+            "1. HÃY ĐỌC THẬT KỸ tags và description của từng quán. CHỈ chọn tối đa 3 địa điểm phù hợp nhất với yêu cầu của user.\n" +
+            "2. CHỈ ĐƯỢC CHỌN ID CÓ TRONG DANH SÁCH. TUYỆT ĐỐI KHÔNG TỰ BỊA ĐỊA ĐIỂM.\n" +
+            "3. TRẢ VỀ DUY NHẤT MẢNG JSON, KHÔNG DÙNG MARKDOWN, KHÔNG GIẢI THÍCH THÊM.\n" +
+            "Cấu trúc JSON bắt buộc:\n" +
+            "[\n" +
+            "  {\n" +
+            "    \"placeId\": (ID của địa điểm),\n" +
+            "    \"reason\": \"(Giải thích 1 câu ngắn gọn tại sao quán này hợp với yêu cầu của user)\"\n" +
+            "  }\n" +
+            "]";
     private final PlaceRepository placeRepository;
 
     private String cleanJsonString(String rawJson){
@@ -62,13 +75,8 @@ public class GeminiServiceImpl implements GeminiService {
     }
 
     @Override
-    public String recommendPlaces(String userRequirement) {
-        return null;
-    }
-
-    @Override
     public GeminiSearchConditionResponseDTO extractSearchConditions(String userRequirement) {
-        String finalPrompt = String.format(PROMPT, userRequirement);
+        String finalPrompt = String.format(PROMPT_CALL_1, userRequirement);
 
         GeminiRequestDTO requestDTO = GeminiRequestDTO.builder()
                 .contents(List.of(
@@ -109,7 +117,6 @@ public class GeminiServiceImpl implements GeminiService {
     @Override
     public List<PlaceContextRequestDTO> processRecommendation(String userPrompt) {
         GeminiSearchConditionResponseDTO conditions = extractSearchConditions(userPrompt);
-        log.info("🎯 Điều kiện AI bóc tách: {}", conditions);
 
         Specification<Place> spec = Specification
                 .where(AIPlaceSpecification.hasActiveStatus());
@@ -125,8 +132,6 @@ public class GeminiServiceImpl implements GeminiService {
         Pageable limit = PageRequest.of(0,15);
         Page<Place> candidatePage = placeRepository.findAll(spec, limit);
         List<Place> candidates = candidatePage.getContent();
-
-        log.info("🔍 DB trả về {} ứng viên tiềm năng.", candidates.size());
 
         if(candidates.isEmpty()){
             return new ArrayList<>();
@@ -147,5 +152,67 @@ public class GeminiServiceImpl implements GeminiService {
         }).collect(Collectors.toList());
 
         return contextList;
+    }
+
+    @Override
+    public List<GeminiRecommendResponseDTO> recommendPlaces(String userRequirement) {
+        try {
+            List<PlaceContextRequestDTO> candidates = processRecommendation(userRequirement);
+
+            if(candidates.isEmpty()){
+                return new ArrayList<>();
+            }
+
+            String candidatesJson = objectMapper.writeValueAsString(candidates);
+
+            String finalPrompt = String.format(PROMPT_CALL_2, userRequirement, candidatesJson);
+            GeminiRequestDTO requestDTO = GeminiRequestDTO.builder()
+                    .contents(List.of(
+                            GeminiRequestDTO.GeminiContent.builder()
+                                    .parts(List.of(
+                                            GeminiRequestDTO.GeminiPart.builder()
+                                                    .text(finalPrompt)
+                                                    .build()
+                                    ))
+                                    .build()
+                    ))
+                    .build();
+
+            String urlWithKey = geminiConfig.getUrl()
+                    + "/models/" + geminiConfig.getModel()
+                    + ":" + geminiConfig.getMethod()
+                    + "?key=" + geminiConfig.getKey();
+
+            GeminiResponseDTO responseDTO = restClient.post()
+                    .uri(urlWithKey)
+                    .body(requestDTO)
+                    .retrieve()
+                    .body(GeminiResponseDTO.class);
+
+            if(responseDTO != null &&  responseDTO.getCandidates() != null && !responseDTO.getCandidates().isEmpty()){
+                String rawText = responseDTO.getCandidates().get(0).getContent().getParts().get(0).getText();
+                String cleanText =  cleanJsonString(rawText);
+
+                List<GeminiRankingResponseDTO> aiChoices = objectMapper.readValue(cleanText,
+                        new TypeReference<List<GeminiRankingResponseDTO>>() {});
+
+                List<GeminiRecommendResponseDTO> finalResults = new ArrayList<>();
+                for(GeminiRankingResponseDTO choice: aiChoices){
+                    candidates.stream()
+                            .filter(cand->cand.getId().equals(choice.getPlaceId()))
+                            .findFirst()
+                            .ifPresent(matchedContext->{
+                                finalResults.add(GeminiRecommendResponseDTO.builder()
+                                        .placeContextRequestDTO(matchedContext)
+                                        .reason(choice.getReason())
+                                        .build());
+                            });
+                }
+                return finalResults;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Có lõi xảy ra ở luồng call AI lần 2: "+e);
+        }
+        return null;
     }
 }

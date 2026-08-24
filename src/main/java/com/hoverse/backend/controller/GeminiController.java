@@ -21,6 +21,6 @@ public class GeminiController {
 
     @GetMapping("/recommend")
     public ResponseEntity<?> recommend(@RequestParam String prompt){
-        return ResponseEntity.ok(geminiService.processRecommendation(prompt));
+        return ResponseEntity.ok(geminiService.recommendPlaces(prompt));
     }
 }

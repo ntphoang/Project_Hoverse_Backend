@@ -4,6 +4,8 @@ import com.hoverse.backend.dto.ErrorResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -68,4 +70,29 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponseDTO);
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException exception){
+        String message = "Định dạng dữ liệu đầu vào không hợp lệ. Vui lòng kiểm tra lại kiểu dữ liệu!";
+
+        ErrorResponseDTO errorResponseDTO = ErrorResponseDTO.builder()
+                .time(LocalDateTime.now())
+                .message(message)
+                .code("400")
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponseDTO);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception){
+        String message = "Định dạng dữ liệu đầu vào không hợp lệ. Vui lòng kiểm tra lại kiểu dữ liệu!";
+
+        ErrorResponseDTO errorResponseDTO = ErrorResponseDTO.builder()
+                .time(LocalDateTime.now())
+                .message(message)
+                .code("400")
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponseDTO);
+    }
 }

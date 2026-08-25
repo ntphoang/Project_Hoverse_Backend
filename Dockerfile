@@ -1,4 +1,4 @@
-FROM eclipse-temurin:23-jdk
+FROM eclipse-temurin:23-jre
 
 WORKDIR /app
 
@@ -12,6 +12,6 @@ COPY src ./src
 
 RUN ./mvnw clean package -DskipTests
 
-EXPOSE 8088
+EXPOSE 10000
 
-CMD ["java", "-jar", "target/backend-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-Xms128m", "-Xmx384m", "-jar", "target/backend-0.0.1-SNAPSHOT.jar"]

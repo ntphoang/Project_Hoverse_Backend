@@ -15,4 +15,4 @@ RUN ./mvnw clean package -DskipTests
 
 EXPOSE 10000
 
-CMD ["java", "-jar", "target/backend-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-Xms128m", "-Xmx384m", "-jar", "target/backend-0.0.1-SNAPSHOT.jar"]

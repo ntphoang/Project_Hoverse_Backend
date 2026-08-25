@@ -1,4 +1,4 @@
-FROM eclipse-temurin:23-jre
+FROM eclipse-temurin:23-jdk
 
 WORKDIR /app
 
@@ -6,7 +6,8 @@ COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
 
 RUN chmod +x mvnw
-RUN ./mvnw dependency:go-offline -B
+
+RUN java -version && javac -version && ./mvnw -version
 
 COPY src ./src
 
@@ -14,4 +15,4 @@ RUN ./mvnw clean package -DskipTests
 
 EXPOSE 10000
 
-CMD ["java", "-Xms128m", "-Xmx384m", "-jar", "target/backend-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "target/backend-0.0.1-SNAPSHOT.jar"]

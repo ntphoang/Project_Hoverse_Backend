@@ -160,6 +160,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public void resendVerify(String email) {
         if(email==null){
             throw new BadRequestException("Tài khoản không hợp lệ!");
@@ -174,20 +175,21 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("Email xác thực cũ vẫn còn hiệu lực, vui lòng thử lại sau!");
         }
 
-        if(tokenOld!=null && tokenOld.getExpiredAt().isBefore(LocalDateTime.now())){
-            user.setVerificationToken(null);
-            verificationTokenRepository.delete(tokenOld);
+        String emailToken = UUID.randomUUID().toString();
+
+        if(tokenOld!=null){
+            tokenOld.setToken(emailToken);
+            tokenOld.setExpiredAt(LocalDateTime.now().plusMinutes(15));
+        }else{
+            VerificationToken verificationToken = VerificationToken.builder()
+                    .type(TokenType.VERIFY_EMAIL)
+                    .expiredAt(LocalDateTime.now().plusMinutes(15))
+                    .token(emailToken)
+                    .user(user)
+                    .build();
+            user.setVerificationToken(verificationToken);
         }
 
-        String emailToken = UUID.randomUUID().toString();
-        VerificationToken verificationToken = VerificationToken.builder()
-                .type(TokenType.VERIFY_EMAIL)
-                .expiredAt(LocalDateTime.now().plusMinutes(15))
-                .token(emailToken)
-                .user(user)
-                .build();
-
-        user.setVerificationToken(verificationToken);
         userRepository.save(user);
 
         emailServiceImpl.sendVerificationEmail(user.getEmail(),emailToken);

@@ -72,7 +72,6 @@ public class User {
     protected void onCreate(){
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        this.isEmailVerified = false;
 
         if(this.status == null) this.status = UserStatus.ACTIVE;
         if(this.role == null) this.role = Role.USER;

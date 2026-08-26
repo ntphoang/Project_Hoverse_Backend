@@ -68,25 +68,26 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .status(UserStatus.ACTIVE)
+                .isEmailVerified(true)
                 .build();
 
-        // Xác thực email
-        String emailToken = UUID.randomUUID().toString();
-        VerificationToken verificationToken = VerificationToken.builder()
-                .type(TokenType.VERIFY_EMAIL)
-                .expiredAt(LocalDateTime.now().plusMinutes(15))
-                .token(emailToken)
-                .user(user)
-                .build();
-
-        user.setVerificationToken(verificationToken);
+//        // Xác thực email(chưa dùng vì hiện tại render chặn tài khoản free khi gửi bằng Gmail SMTP)
+//        String emailToken = UUID.randomUUID().toString();
+//        VerificationToken verificationToken = VerificationToken.builder()
+//                .type(TokenType.VERIFY_EMAIL)
+//                .expiredAt(LocalDateTime.now().plusMinutes(15))
+//                .token(emailToken)
+//                .user(user)
+//                .build();
+//
+//        user.setVerificationToken(verificationToken);
         userRepository.save(user);
 
-        try {
-            emailService.sendVerificationEmail(email,emailToken);
-        } catch (MailSendException e) {
-            throw new BadRequestException("Email không tồn tại hoặc không sử dụng được. Vui lòng sử dụng email khac!");
-        }
+//        try {
+//            emailService.sendVerificationEmail(email,emailToken);
+//        } catch (MailSendException e) {
+//            throw new BadRequestException("Email không tồn tại hoặc không sử dụng được. Vui lòng sử dụng email khac!");
+//        }
 
         return AuthResponseDTO.builder()
                 .email(user.getEmail())

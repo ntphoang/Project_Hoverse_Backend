@@ -96,6 +96,7 @@ public class PlaceServiceImpl implements PlaceService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PlaceResponseDTO getPlaceDetail(Long placeId) {
         Place place = placeRepository.findByIdAndStatus(placeId, PlaceStatus.APPROVED)
                 .orElseThrow(()->new ResourceNotFoundException("Không tim thấy địa điểm với ID: "+placeId));
@@ -104,6 +105,7 @@ public class PlaceServiceImpl implements PlaceService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<PlaceResponseDTO> getPlaceByConditions(PlaceFilterRequestDTO filterRequestDTO, Pageable pageable) {
         Specification<Place> specification =
                 Specification.where(PlaceSpecification.hasTitle(filterRequestDTO.getTitle()))
@@ -117,6 +119,7 @@ public class PlaceServiceImpl implements PlaceService {
     }
 
     @Override
+    @Transactional
     public PlaceResponseDTO updatePlace(Long placeId, String email, PlaceUpdateRequestDTO requestDTO, List<MultipartFile> files) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(()-> new ResourceNotFoundException("Không tìm thấy user với email: "+email));
@@ -170,6 +173,7 @@ public class PlaceServiceImpl implements PlaceService {
     }
 
     @Override
+    @Transactional
     public PlaceChangeStatusResponseDTO changeStatus(Long placeId, PlaceChangeStatusRequestDTO requestDTO) {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy địa điểm với id: "+placeId));
@@ -195,6 +199,7 @@ public class PlaceServiceImpl implements PlaceService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PlaceTopRatingResponseDTO> getPlacesTopRating(Integer reviewCount) {
         return placeRepository.findTop5ByReviewCountGreaterThanEqualAndStatusOrderByAvgRatingDescReviewCountDesc(reviewCount,PlaceStatus.APPROVED)
                 .stream()
@@ -203,6 +208,7 @@ public class PlaceServiceImpl implements PlaceService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PlaceCountResponseDTO> countPlaceGroupByMonth(int year) {
         List<Object[]> objects = placeRepository.countPlaceGroupByMonth(year);
 

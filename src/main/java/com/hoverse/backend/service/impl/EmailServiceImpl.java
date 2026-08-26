@@ -33,7 +33,7 @@ public class EmailServiceImpl implements EmailService {
     private String frontendUrl;
 
     @Override
-    @Async("emailTaskExecutor")
+//    @Async("emailTaskExecutor")
     public void sendVerificationEmail(String toEmail, String token) {
         try {
             String verificationLink = frontendUrl+"/verify-email?token="+token;

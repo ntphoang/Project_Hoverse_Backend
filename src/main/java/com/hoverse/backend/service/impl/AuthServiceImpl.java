@@ -16,7 +16,7 @@ import com.hoverse.backend.repository.UserRepository;
 import com.hoverse.backend.repository.VerificationTokenRepository;
 import com.hoverse.backend.security.JwtUtils;
 import com.hoverse.backend.service.AuthService;
-import jakarta.servlet.http.Cookie;
+import com.hoverse.backend.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailSendException;
@@ -29,11 +29,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Date;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -48,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
-    private final EmailServiceImpl emailServiceImpl;
+    private final EmailService emailService;
     private final VerificationTokenRepository verificationTokenRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
@@ -86,7 +83,7 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
 
         try {
-            emailServiceImpl.sendVerificationEmail(email,emailToken);
+            emailService.sendVerificationEmail(email,emailToken);
         } catch (MailSendException e) {
             throw new BadRequestException("Email không tồn tại hoặc không sử dụng được. Vui lòng sử dụng email khac!");
         }
@@ -192,7 +189,7 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
 
-        emailServiceImpl.sendVerificationEmail(user.getEmail(),emailToken);
+        emailService.sendVerificationEmail(user.getEmail(),emailToken);
     }
 
     @Override

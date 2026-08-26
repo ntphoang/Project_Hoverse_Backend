@@ -47,7 +47,7 @@ public class SecurityConfig {
                 .cors(cors->cors.configure(http))
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth->auth
-                        .requestMatchers(HttpMethod.GET,"/api/v1/places/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/places",  "/api/v1/places/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/tags/**").permitAll()
                         .requestMatchers("/api/v1/auth/register").permitAll()

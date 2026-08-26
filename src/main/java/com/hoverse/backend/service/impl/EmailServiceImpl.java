@@ -29,11 +29,14 @@ public class EmailServiceImpl implements EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
+    @Value("${frontend-url}")
+    private String frontendUrl;
+
     @Override
     @Async("emailTaskExecutor")
     public void sendVerificationEmail(String toEmail, String token) {
         try {
-            String verificationLink = "http://localhost:5173/verify-email?token="+token;
+            String verificationLink = frontendUrl+"/verify-email?token="+token;
 
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message,MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
@@ -52,7 +55,7 @@ public class EmailServiceImpl implements EmailService {
 
             mailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
-            System.out.println("Có lỗi khi gửi email tới "+toEmail+": "+e.getMessage() );
+            log.error("Failed to send verification email to {}", toEmail, e);
         }
     }
 }

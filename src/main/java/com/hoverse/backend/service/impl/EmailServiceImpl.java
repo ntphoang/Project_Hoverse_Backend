@@ -1,6 +1,7 @@
 package com.hoverse.backend.service.impl;
 
 import com.hoverse.backend.service.EmailService;
+import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,12 @@ public class EmailServiceImpl implements EmailService {
 
     @Value("${frontend-url}")
     private String frontendUrl;
+
+    @PostConstruct
+    public void checkConfig() {
+        log.info("LOCAL_FRONTEND_URL = {}", System.getenv("LOCAL_FRONTEND_URL"));
+        log.info("frontendUrl = {}", frontendUrl);
+    }
 
     @Override
     @Async("emailTaskExecutor")

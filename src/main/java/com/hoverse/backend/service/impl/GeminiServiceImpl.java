@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
@@ -155,6 +156,7 @@ public class GeminiServiceImpl implements GeminiService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<GeminiRecommendResponseDTO> recommendPlaces(String userRequirement) {
         try {
             List<PlaceContextRequestDTO> candidates = processRecommendation(userRequirement);

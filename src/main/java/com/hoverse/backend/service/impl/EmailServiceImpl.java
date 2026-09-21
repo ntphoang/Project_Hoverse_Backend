@@ -35,12 +35,6 @@ public class EmailServiceImpl implements EmailService {
     @Value("${frontend-url}")
     private String frontendUrl;
 
-    @PostConstruct
-    public void checkConfig() {
-        log.info("LOCAL_FRONTEND_URL = {}", System.getenv("LOCAL_FRONTEND_URL"));
-        log.info("frontendUrl = {}", frontendUrl);
-    }
-
     @Override
     @Async("emailTaskExecutor")
     public void sendVerificationEmail(String toEmail, String token) {

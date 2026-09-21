@@ -137,6 +137,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ReviewResponseDTO> getReviewsByConditions(ReviewFilterRequestDTO requestDTO, Pageable pageable) {
         Specification<Review> specification = Specification
                 .where(ReviewSpecification.hasYear(requestDTO.getYear()))

@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -79,6 +80,7 @@ public class PlaceFavoriteServiceImpl implements PlaceFavoriteService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<PlaceResponseDTO> getPlaceFavorites(String email, Pageable pageable) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy user với email: "+email));

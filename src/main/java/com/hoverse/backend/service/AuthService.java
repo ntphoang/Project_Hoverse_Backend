@@ -3,6 +3,7 @@ package com.hoverse.backend.service;
 import com.hoverse.backend.dto.user.AuthRequestDTO;
 import com.hoverse.backend.dto.user.AuthResponseDTO;
 import com.hoverse.backend.dto.user.AuthResultDTO;
+import com.hoverse.backend.dto.user.GoogleLoginRequestDTO;
 import jakarta.servlet.http.Cookie;
 
 /**
@@ -13,6 +14,7 @@ import jakarta.servlet.http.Cookie;
 public interface AuthService {
     AuthResponseDTO register(AuthRequestDTO request);
     AuthResultDTO login(AuthRequestDTO request);
+    AuthResultDTO loginWithGoogle(GoogleLoginRequestDTO request);
     void verifyEmail(String token);
     void resendVerify(String email);
     AuthResponseDTO refreshToken(String refreshTokenString);

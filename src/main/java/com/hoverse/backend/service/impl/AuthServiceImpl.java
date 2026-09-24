@@ -1,8 +1,10 @@
 package com.hoverse.backend.service.impl;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.hoverse.backend.dto.user.AuthRequestDTO;
 import com.hoverse.backend.dto.user.AuthResponseDTO;
 import com.hoverse.backend.dto.user.AuthResultDTO;
+import com.hoverse.backend.dto.user.GoogleLoginRequestDTO;
 import com.hoverse.backend.entity.RefreshToken;
 import com.hoverse.backend.entity.User;
 import com.hoverse.backend.entity.VerificationToken;
@@ -17,6 +19,7 @@ import com.hoverse.backend.repository.VerificationTokenRepository;
 import com.hoverse.backend.security.JwtUtils;
 import com.hoverse.backend.service.AuthService;
 import com.hoverse.backend.service.EmailService;
+import com.hoverse.backend.service.GoogleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailSendException;
@@ -48,6 +51,7 @@ public class AuthServiceImpl implements AuthService {
     private final EmailService emailService;
     private final VerificationTokenRepository verificationTokenRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final GoogleService googleService;
 
     @Value("${jwt.refresh.expiration}")
     private int refreshExpiration;
@@ -121,6 +125,107 @@ public class AuthServiceImpl implements AuthService {
                 .build();
         refreshTokenRepository.save(refreshToken);
 
+        AuthResponseDTO responseDTO = AuthResponseDTO.builder()
+                .id(user.getId())
+                .token(jwtToken)
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .fullName(user.getFullName())
+                .avatarUrl(user.getAvatarUrl())
+                .isEmailVerified(user.isEmailVerified())
+                .build();
+
+        return AuthResultDTO.builder()
+                .responseDTO(responseDTO)
+                .refreshToken(refreshTokenString)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public AuthResultDTO loginWithGoogle(GoogleLoginRequestDTO request) {
+
+        // 1. Xác thực credential với Google
+        GoogleIdToken.Payload payload =
+                googleService.verifyCredential(request.getCredential());
+
+        String googleId = payload.getSubject();
+        String email = payload.getEmail();
+        String fullName = (String) payload.get("name");
+        String avatarUrl = (String) payload.get("picture");
+
+        // 2. Tìm user bằng Google ID trước
+        User user = userRepository.findByGoogleId(googleId)
+                .orElse(null);
+
+        // 3. Nếu chưa liên kết Google ID -> tìm bằng email
+        if (user == null) {
+
+            user = userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)
+                    .orElse(null);
+
+            // 4. Email chưa tồn tại -> tạo User mới
+            if (user == null) {
+
+                String generatedUsername =
+                        email.substring(0, email.indexOf("@"))
+                                + "_" + System.currentTimeMillis();
+
+                user = User.builder()
+                        .username(generatedUsername)
+                        .email(email)
+                        .password(null)
+                        .googleId(googleId)
+                        .fullName(fullName)
+                        .avatarUrl(avatarUrl)
+                        .role(Role.USER)
+                        .status(UserStatus.ACTIVE)
+                        .isEmailVerified(true)
+                        .build();
+
+                user = userRepository.save(user);
+
+            } else {
+
+                // 5. Email đã tồn tại -> liên kết Google vào account hiện tại
+                user.setGoogleId(googleId);
+
+                if (user.getFullName() == null || user.getFullName().isBlank()) {
+                    user.setFullName(fullName);
+                }
+
+                if (user.getAvatarUrl() == null || user.getAvatarUrl().isBlank()) {
+                    user.setAvatarUrl(avatarUrl);
+                }
+
+                user = userRepository.save(user);
+            }
+        }
+
+        // 6. Tạo Hoverse Access Token
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                user.getPassword() == null ? "" : user.getPassword(),
+                Collections.singletonList(
+                        new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+                )
+        );
+
+        String jwtToken = jwtUtils.generateToken(userDetails);
+
+        // 7. Tạo Refresh Token
+        String refreshTokenString = UUID.randomUUID().toString();
+
+        RefreshToken refreshToken = RefreshToken.builder()
+                .isActive(true)
+                .expiredAt(LocalDateTime.now().plus(Duration.ofMillis(refreshExpiration)))
+                .token(refreshTokenString)
+                .user(user)
+                .build();
+
+        refreshTokenRepository.save(refreshToken);
+
+        // 8. Tạo response giống login thường
         AuthResponseDTO responseDTO = AuthResponseDTO.builder()
                 .id(user.getId())
                 .token(jwtToken)

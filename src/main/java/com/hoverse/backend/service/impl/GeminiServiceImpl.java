@@ -149,6 +149,7 @@ public class GeminiServiceImpl implements GeminiService {
                     .address(place.getAddress())
                     .description(place.getDescription())
                     .tags(tagNames)
+                    .coverImageUrl(place.getCoverImageUrl())
                     .build();
         }).collect(Collectors.toList());
 

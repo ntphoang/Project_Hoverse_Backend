@@ -3,6 +3,7 @@ package com.hoverse.backend.controller;
 import com.hoverse.backend.dto.user.AuthRequestDTO;
 import com.hoverse.backend.dto.user.AuthResponseDTO;
 import com.hoverse.backend.dto.user.AuthResultDTO;
+import com.hoverse.backend.dto.user.GoogleLoginRequestDTO;
 import com.hoverse.backend.exception.BadRequestException;
 import com.hoverse.backend.exception.ResourceNotFoundException;
 import com.hoverse.backend.service.AuthService;
@@ -57,6 +58,27 @@ public class AuthController {
                     .body(resultDTO.getResponseDTO());
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Tài khoản hoặc mật khẩu không chính xác!");
+        }
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<?> loginWithGoogle(@Valid @RequestBody GoogleLoginRequestDTO request){
+        try {
+            AuthResultDTO resultDTO = authService.loginWithGoogle(request);
+
+            ResponseCookie responseCookie = ResponseCookie
+                    .from("refreshToken", resultDTO.getRefreshToken())
+                    .httpOnly(true)
+                    .secure(true)
+                    .maxAge(Duration.ofDays(7))
+                    .path("/")
+                    .build();
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                    .body(resultDTO.getResponseDTO());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Đăng nhập Google thất bại!");
         }
     }
 

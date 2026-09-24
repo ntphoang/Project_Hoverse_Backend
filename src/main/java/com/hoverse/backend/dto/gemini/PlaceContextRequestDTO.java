@@ -22,4 +22,5 @@ public class PlaceContextRequestDTO {
     private String address;
     private String description;
     private List<String> tags;
+    private String coverImageUrl;
 }

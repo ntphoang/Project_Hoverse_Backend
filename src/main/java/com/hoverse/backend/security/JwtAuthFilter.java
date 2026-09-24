@@ -40,7 +40,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (path.equals("/api/v1/auth/register") ||
                 path.equals("/api/v1/auth/login") ||
                 path.equals("/api/v1/auth/verify-email") ||
-                path.equals("/api/v1/auth/refresh-token")
+                path.equals("/api/v1/auth/refresh-token") ||
+                path.equals("/api/v1/auth/google")
         ) {
             filterChain.doFilter(request,response);
             return;

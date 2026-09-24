@@ -25,4 +25,6 @@ public interface UserRepository extends JpaRepository<User,Long>, JpaSpecificati
 
     @Query("select MONTH(u.createdAt), count(u.id) from User u where YEAR(u.createdAt) = :year group by MONTH(u.createdAt)")
     List<Object[]> countUsersGroupByMonth(@Param("year") int year);
+
+    Optional<User> findByGoogleId(String googleId);
 }

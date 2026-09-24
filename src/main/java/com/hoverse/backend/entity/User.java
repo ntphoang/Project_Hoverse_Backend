@@ -22,13 +22,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "google_id", unique = true)
+    private String googleId;
+
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
     @Column
     private String fullName;
 
-    @Column(nullable = false, length = 255)
+    @Column(length = 255)
     private String password;
 
     @Column(nullable = false, unique = true, length = 100)

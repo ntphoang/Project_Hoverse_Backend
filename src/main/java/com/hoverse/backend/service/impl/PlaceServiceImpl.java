@@ -6,6 +6,7 @@ import com.hoverse.backend.dto.placeFavorite.PlaceFavoriteResponseDTO;
 import com.hoverse.backend.entity.*;
 import com.hoverse.backend.enums.PlaceStatus;
 import com.hoverse.backend.enums.Role;
+import com.hoverse.backend.enums.UserStatus;
 import com.hoverse.backend.exception.BadRequestException;
 import com.hoverse.backend.exception.ResourceNotFoundException;
 import com.hoverse.backend.mapper.PlaceMapper;
@@ -55,7 +56,7 @@ public class PlaceServiceImpl implements PlaceService {
     public PlaceResponseDTO createPlace(String email,PlaceRequestDTO requestDTO, List<MultipartFile> files) {
         Category category = categoryRepository.findById(requestDTO.getCategoryId())
                 .orElseThrow(()->new BadRequestException("Không tìm thấy danh mục với ID: "+requestDTO.getCategoryId()));
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy người dùng với email: "+email));
         if(!user.isEmailVerified()){
             throw new AccessDeniedException("Vui lòng xác thực email để thực hiện chức năng này!");
@@ -121,7 +122,7 @@ public class PlaceServiceImpl implements PlaceService {
     @Override
     @Transactional
     public PlaceResponseDTO updatePlace(Long placeId, String email, PlaceUpdateRequestDTO requestDTO, List<MultipartFile> files) {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)
                 .orElseThrow(()-> new ResourceNotFoundException("Không tìm thấy user với email: "+email));
         if(!user.isEmailVerified()){
             throw new AccessDeniedException("Vui lòng xác thực email để thực hiện chức năng này!");

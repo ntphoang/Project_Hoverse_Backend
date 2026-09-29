@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserProfileResponseDTO getUserProfile(String email) {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy user với email: "+email));
         return userMapper.toResponseDTO(user);
     }

@@ -105,7 +105,7 @@ public class AuthServiceImpl implements AuthService {
                 new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPassword())
         );
 
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmailAndStatus(request.getEmail(),UserStatus.ACTIVE)
                 .orElseThrow(()->new RuntimeException("Không tìm thấy User"));
 
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(

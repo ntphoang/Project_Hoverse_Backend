@@ -5,6 +5,7 @@ import com.hoverse.backend.dto.placeFavorite.PlaceFavoriteResponseDTO;
 import com.hoverse.backend.entity.Place;
 import com.hoverse.backend.entity.PlaceFavorite;
 import com.hoverse.backend.entity.User;
+import com.hoverse.backend.enums.UserStatus;
 import com.hoverse.backend.exception.ResourceNotFoundException;
 import com.hoverse.backend.mapper.PlaceFavoriteMapper;
 import com.hoverse.backend.mapper.PlaceMapper;
@@ -38,7 +39,7 @@ public class PlaceFavoriteServiceImpl implements PlaceFavoriteService {
 
     @Override
     public PlaceFavoriteResponseDTO toggleFavorite(String email, Long placeId) {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy user với email: "+email));
 
         Place place = placeRepository.findById(placeId)
@@ -73,7 +74,7 @@ public class PlaceFavoriteServiceImpl implements PlaceFavoriteService {
         if(email == null){
             return null;
         }
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy user với email: "+email));
 
         return placeFavoriteRepository.getPlaceFavoriteIdByUserId(user.getId());
@@ -82,7 +83,7 @@ public class PlaceFavoriteServiceImpl implements PlaceFavoriteService {
     @Override
     @Transactional(readOnly = true)
     public Page<PlaceResponseDTO> getPlaceFavorites(String email, Pageable pageable) {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy user với email: "+email));
 
         return placeFavoriteRepository.getPlaceFavorites(user.getId(),pageable)

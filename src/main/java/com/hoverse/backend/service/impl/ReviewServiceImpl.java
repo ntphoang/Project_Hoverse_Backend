@@ -89,7 +89,7 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewResponseDTO createReview(Long placeId, String email, ReviewRequestDTO reviewRequestDTO, List<MultipartFile> files) {
         Place placeRepo = placeRepository.findByIdAndStatus(placeId, PlaceStatus.APPROVED)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy địa điểm với id là: "+placeId));
-        User userRepo = userRepository.findByEmail(email)
+        User userRepo = userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)
                 .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy người dùng với email là: "+email));
         if(!userRepo.isEmailVerified()){
             throw new AccessDeniedException("Vui lòng xác thực email để thực hiện chức năng này!");
@@ -150,6 +150,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Transactional
     public ReviewResponseDTO updateReview(String email, Long reviewId, ReviewUpdateRequestDTO requestDTO, List<MultipartFile> files) {
         // Tìm các thông tin dưới repo
         User user = userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)

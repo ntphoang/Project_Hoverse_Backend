@@ -229,4 +229,12 @@ public class PlaceServiceImpl implements PlaceService {
 
         return responseDTOS;
     }
+
+    @Override
+    public List<PlaceForMapResponseDTO> getPlacesForMap() {
+        List<Place> places = placeRepository.findAllByStatus(PlaceStatus.APPROVED);
+        return places.stream()
+                .map(placeMapper::toPlaceForMapResponseDTO)
+                .toList();
+    }
 }

@@ -92,4 +92,9 @@ public class PlaceController {
     public ResponseEntity<?> countPlaceGroupByMonth(@RequestParam int year){
         return ResponseEntity.ok(placeService.countPlaceGroupByMonth(year));
     }
+
+    @GetMapping("/map")
+    public ResponseEntity<?> getPlacesForMap(){
+        return ResponseEntity.ok(placeService.getPlacesForMap());
+    }
 }

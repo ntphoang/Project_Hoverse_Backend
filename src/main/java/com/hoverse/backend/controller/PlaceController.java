@@ -40,6 +40,27 @@ public class PlaceController {
         return ResponseEntity.ok(createPlace);
     }
 
+    @PostMapping(
+            value = "/admin",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PlaceResponseDTO> createPlaceByAdmin(
+            Principal principal,
+            @RequestPart("place")
+            @Valid PlaceCreateByAdminRequestDTO requestDTO,
+            @RequestPart(value = "files", required = false)
+            List<MultipartFile> files
+    ) {
+        String email = principal.getName();
+
+        PlaceResponseDTO response = placeService.createPlaceByAdmin(
+                email, requestDTO, files
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<PlaceResponseDTO> getPlaceDetail(@PathVariable Long id){
         PlaceResponseDTO place = placeService.getPlaceDetail(id);

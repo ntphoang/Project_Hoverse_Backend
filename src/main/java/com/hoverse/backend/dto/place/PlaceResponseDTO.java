@@ -44,4 +44,6 @@ public class PlaceResponseDTO {
     private Set<TagResponseDTO> tags;
 
     private List<PlaceMediaResponseDTO> placeMediaList;
+
+    private List<PlaceSourceResponseDTO> placeSources;
 }

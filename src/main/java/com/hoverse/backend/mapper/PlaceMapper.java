@@ -10,7 +10,7 @@ import org.mapstruct.Mapping;
  * Author: Phi Hoàng
  * Date: 29/05/2026
  */
-@Mapper(componentModel = "spring",uses = {TagMapper.class, PlaceMediaMapper.class} )
+@Mapper(componentModel = "spring",uses = {TagMapper.class, PlaceMediaMapper.class,PlaceSourceMapper.class} )
 public interface PlaceMapper {
     @Mapping(source = "category.id",target = "categoryId")
     @Mapping(source = "category.name",target = "categoryName")

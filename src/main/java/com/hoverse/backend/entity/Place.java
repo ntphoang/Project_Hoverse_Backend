@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -105,6 +106,24 @@ public class Place {
     )
     private Set<Tag> tags;
 
+    @OneToMany(
+            mappedBy = "place",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @Builder.Default
+    private List<PlaceSource> placeSources = new ArrayList<>();
+
+    public void addPlaceSource(PlaceSource placeSource) {
+        placeSources.add(placeSource);
+        placeSource.setPlace(this);
+    }
+
+    public void removePlaceSource(PlaceSource placeSource) {
+        placeSources.remove(placeSource);
+        placeSource.setPlace(null);
+    }
+
     @PrePersist
     protected void onCreate(){
         this.createdAt = LocalDateTime.now();
@@ -121,5 +140,4 @@ public class Place {
     protected void onUpdate(){
         this.updatedAt = LocalDateTime.now();
     }
-
 }

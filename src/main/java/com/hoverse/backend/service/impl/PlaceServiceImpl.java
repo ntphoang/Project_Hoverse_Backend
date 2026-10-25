@@ -51,41 +51,85 @@ public class PlaceServiceImpl implements PlaceService {
                 .build();
     }
 
-    @Transactional
-    @Override
-    public PlaceResponseDTO createPlace(String email,PlaceRequestDTO requestDTO, List<MultipartFile> files) {
-        Category category = categoryRepository.findById(requestDTO.getCategoryId())
-                .orElseThrow(()->new BadRequestException("Không tìm thấy danh mục với ID: "+requestDTO.getCategoryId()));
-        User user = userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)
-                .orElseThrow(()->new ResourceNotFoundException("Không tìm thấy người dùng với email: "+email));
-        if(!user.isEmailVerified()){
-            throw new AccessDeniedException("Vui lòng xác thực email để thực hiện chức năng này!");
+    private PlaceResponseDTO createPlaceInternal(
+            String email,
+            PlaceRequestDTO requestDTO,
+            List<MultipartFile> files,
+            PlaceStatus status,
+            PlaceCreateByAdminRequestDTO sourceDTO
+    ) {
+        Category category = categoryRepository.findById(
+                requestDTO.getCategoryId()
+        ).orElseThrow(() -> new BadRequestException(
+                "Không tìm thấy danh mục với ID: "
+                        + requestDTO.getCategoryId()
+        ));
+
+        User user = userRepository.findByEmailAndStatus(
+                email, UserStatus.ACTIVE
+        ).orElseThrow(() -> new ResourceNotFoundException(
+                "Không tìm thấy người dùng với email: " + email
+        ));
+
+        if (!user.isEmailVerified()) {
+            throw new AccessDeniedException(
+                    "Vui lòng xác thực email để thực hiện chức năng này!"
+            );
         }
 
         Place place = placeMapper.toEntity(requestDTO);
+
+        // Kiểm tra tag, kể cả khi tagIds là null.
+        Set<Long> tagIds = requestDTO.getTagIds();
         List<Tag> tags = new ArrayList<>();
-        if(requestDTO.getTagIds()!=null && !requestDTO.getTagIds().isEmpty()){
-            tags = tagRepository.findAllById(requestDTO.getTagIds());
-        }
-        if(requestDTO.getTagIds().size()!=tags.size()){
-            throw new BadRequestException("Một hoặc nhiều tag không tồn tại!");
+
+        if (tagIds != null && !tagIds.isEmpty()) {
+            tags = tagRepository.findAllById(tagIds);
+
+            if (tags.size() != tagIds.size()) {
+                throw new BadRequestException(
+                        "Một hoặc nhiều tag không tồn tại!"
+                );
+            }
         }
 
         place.setCategory(category);
         place.setUser(user);
         place.setTags(new HashSet<>(tags));
 
+        // Trạng thái được quyết định tại backend.
+        place.setStatus(status);
+        place.setRejectionReason(null);
+
+        // Chỉ lưu nguồn khi tạo địa điểm bằng chức năng Admin.
+        if (sourceDTO != null) {
+            PlaceSource source = PlaceSource.builder()
+                    .sourceUrl(sourceDTO.getSourceUrl())
+                    .creatorUsername(sourceDTO.getCreatorUsername())
+                    .permissionGrantedAt(
+                            sourceDTO.getPermissionGrantedAt()
+                    )
+                    .build();
+
+            place.addPlaceSource(source);
+        }
+
+        // Upload ảnh lên Cloudinary.
         List<PlaceMedia> placeMediaList = new ArrayList<>();
-        if(files!=null && !files.isEmpty()){
-            for(MultipartFile file: files){
-                CloudinaryUploadResponseDTO responseDTO = cloudinaryService.uploadFile(file,"/places");
-                placeMediaList.add(toEntity(responseDTO,place));
+
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile file : files) {
+                CloudinaryUploadResponseDTO uploadResponse =
+                        cloudinaryService.uploadFile(file, "/places");
+
+                placeMediaList.add(toEntity(uploadResponse, place));
             }
         }
 
         place.setPlaceMediaList(placeMediaList);
 
-        if(!placeMediaList.isEmpty()){
+        // Ảnh đầu tiên là ảnh đại diện.
+        if (!placeMediaList.isEmpty()) {
             placeMediaList.get(0).setThumbnail(true);
             place.setCoverImageUrl(placeMediaList.get(0).getUrl());
         }
@@ -93,7 +137,50 @@ public class PlaceServiceImpl implements PlaceService {
         Place savedPlace = placeRepository.save(place);
 
         return placeMapper.toResponseDTO(savedPlace);
+    }
 
+    @Transactional
+    @Override
+    public PlaceResponseDTO createPlace(
+            String email,
+            PlaceRequestDTO requestDTO,
+            List<MultipartFile> files
+    ) {
+        return createPlaceInternal(
+                email,
+                requestDTO,
+                files,
+                PlaceStatus.PENDING,
+                null
+        );
+    }
+
+    @Transactional
+    @Override
+    public PlaceResponseDTO createPlaceByAdmin(
+            String email,
+            PlaceCreateByAdminRequestDTO requestDTO,
+            List<MultipartFile> files
+    ) {
+        if (requestDTO == null || requestDTO.getPlace() == null) {
+            throw new BadRequestException(
+                    "Thông tin địa điểm không được để trống!"
+            );
+        }
+
+        if (!Boolean.TRUE.equals(requestDTO.getPermissionConfirmed())) {
+            throw new BadRequestException(
+                    "Vui lòng xác nhận quyền sử dụng nội dung!"
+            );
+        }
+
+        return createPlaceInternal(
+                email,
+                requestDTO.getPlace(),
+                files,
+                PlaceStatus.APPROVED,
+                requestDTO
+        );
     }
 
     @Override

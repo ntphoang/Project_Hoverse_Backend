@@ -18,6 +18,7 @@ public interface PlaceMapper {
     @Mapping(source = "user.username",target = "authorName")
     @Mapping(source = "user.email",target = "authorEmail")
     @Mapping(source = "user.avatarUrl",target = "authorAvatarUrl")
+    @Mapping(source = "user.fullName", target = "authorFullName")
     PlaceResponseDTO toResponseDTO(Place place);
 
     @Mapping(source = "categoryId",target = "category.id")

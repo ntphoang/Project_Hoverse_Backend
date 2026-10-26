@@ -32,7 +32,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryResponseDTO> getCategoryByConditions(CategoryFilterRequestDTO requestDTO) {
         Specification<Category> specification =
-                Specification.where(CategorySpecification.isActive(requestDTO.getIsActive()));
+                Specification.where(CategorySpecification.isActive(requestDTO.getIsActive())
+                        .and(CategorySpecification.hasPlace(requestDTO.getHasPlace())));
 
         List<Category> categories = categoryRepository.findAll(specification);
         return categories.stream()

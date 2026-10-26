@@ -1,5 +1,6 @@
 package com.hoverse.backend.controller;
 
+import com.hoverse.backend.dto.tag.TagFilterRequestDTO;
 import com.hoverse.backend.dto.tag.TagRequestDTO;
 import com.hoverse.backend.service.TagService;
 import jakarta.validation.Valid;
@@ -20,8 +21,8 @@ public class TagController {
     private final TagService tagService;
 
     @GetMapping
-    public ResponseEntity<?> getAllTags(@RequestParam(required = false, value = "isActive") Boolean isActive){
-        return ResponseEntity.ok(tagService.getAllTags(isActive));
+    public ResponseEntity<?> getTagsByCondition(@ModelAttribute TagFilterRequestDTO requestDTO){
+        return ResponseEntity.ok(tagService.getTagsByCondition(requestDTO));
     }
 
     @PatchMapping("/{tagId}/status")

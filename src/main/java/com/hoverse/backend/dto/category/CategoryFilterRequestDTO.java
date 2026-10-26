@@ -16,4 +16,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CategoryFilterRequestDTO {
     private Boolean isActive;
+    private Boolean hasPlace;
 }

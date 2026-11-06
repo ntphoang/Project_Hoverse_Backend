@@ -9,7 +9,7 @@
 
 [![Java](https://img.shields.io/badge/Java-17-orange?logo=openjdk&logoColor=white)](./pom.xml)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.6-6DB33F?logo=springboot&logoColor=white)](./pom.xml)
-[![MariaDB](https://img.shields.io/badge/MariaDB-Database-003545?logo=mariadb&logoColor=white)](./pom.xml)
+[![MariaDB](https://img.shields.io/badge/Database-MariaDB-003545?style=flat-square)](./pom.xml)
 [![Maven](https://img.shields.io/badge/Maven-Build-C71A36?logo=apachemaven&logoColor=white)](./pom.xml)
 [![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white)](./Dockerfile)
 
